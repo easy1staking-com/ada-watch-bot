@@ -1,0 +1,6 @@
+{
+  "name": "list",
+  "description": "returns the list of addresses currently being watched.",
+  "options": [
+  ]
+}

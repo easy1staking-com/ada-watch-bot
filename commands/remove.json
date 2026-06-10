@@ -1,0 +1,12 @@
+{
+  "name": "remove",
+  "description": "removes an address from the watchlist",
+  "options": [
+    {
+      "name": "address",
+      "description": "the address to remove, it can be a payment address, a staking address or a $adahandle",
+      "type": 3,
+      "required": true
+    }
+  ]
+}

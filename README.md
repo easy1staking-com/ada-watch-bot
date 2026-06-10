@@ -1,73 +1,109 @@
 # Ada Watch BOT
 
-Ada Watch Bot is a cross-platform bot available on both Telegram and Discord. 
-It allows you to monitor Cardano wallets activity, track DeFi loans on Liqwid Finance, and manage Collateralized Debt Positions (CDPs) 
-on Indigo Protocol—all from your favorite chat platform.
+Ada Watch Bot is a cross-platform bot available on both Telegram and Discord.
+It lets you monitor Cardano wallet activity, track DeFi positions across multiple
+protocols, and follow NFT marketplace events — all from your favourite chat platform.
 
-Ada Watch Bot is compatible with [Ada Handle](https://handle.me/), meaning that, anywhere you can use a Cardano wallet address, you can also use an Ada Handle.
+Ada Watch Bot is compatible with [Ada Handle](https://handle.me/): anywhere a Cardano
+wallet address is accepted, you can use an Ada Handle (`$yourhandle`) instead.
 
 ## How to Access Ada Watch Bot
 
-You can use Ada Watch Bot on both Telegram and Discord:
+You can use Ada Watch Bot on both Telegram and Discord.
 
 ### Telegram
 
-Simply follow this link to start chatting with the bot: [t.me/AdaWatchBot](t.me/AdaWatchBot)
+Open [t.me/AdaWatchBot](https://t.me/AdaWatchBot) and start chatting.
 
 ### Discord
 
 To start interacting with Ada Watch Bot on Discord, follow these steps:
 
 * Open Discord and click the Discover button in the sidebar.
-![00-discover.png](resources/images/discord/00-discover.png)
+  ![00-discover.png](resources/images/discord/00-discover.png)
 
-* Go to the Apps section. 
-![01-apps.png](resources/images/discord/01-apps.png)
+* Go to the Apps section.
+  ![01-apps.png](resources/images/discord/01-apps.png)
 
-* Search for "Ada Watch". 
-![02-search-for-ada-watch.png](resources/images/discord/02-search-for-ada-watch.png)
+* Search for "Ada Watch".
+  ![02-search-for-ada-watch.png](resources/images/discord/02-search-for-ada-watch.png)
 
-* Select the Ada Watch Bot from the results and follow the prompts to add or launch the bot in your server or direct messages.
-![03-select-ada-watch.png](resources/images/discord/03-select-ada-watch.png)
+* Select Ada Watch Bot from the results and follow the prompts to add it to your
+  server or use it in direct messages.
+  ![03-select-ada-watch.png](resources/images/discord/03-select-ada-watch.png)
 
-* Add Ada Watch to your Apps 
-![05-add-ada-watch-to-apps.png](resources/images/discord/05-add-ada-watch-to-apps.png)
+* Add Ada Watch to your Apps.
+  ![05-add-ada-watch-to-apps.png](resources/images/discord/05-add-ada-watch-to-apps.png)
 
-* Authorize app.
+* Authorize the app.
 
 ## How does it work?
 
-Ada Watch allows users to add up to 20 Cardano wallet addresses to a watchlist. Every time an inbound or outbound transaction occurs on any of the watched addresses, 
-the bot sends a notification to the user.
+Ada Watch lets a user add up to **20 Cardano wallet addresses** to their watchlist.
+Whenever an event of interest involves one of those addresses, the bot sends a
+notification.
 
-There are a number of transaction types that the bot can monitor, including:
-* Generic transactions 
-* AdaMatic transactions (https://adamatic.xyz/)
-* FluidTokens Aquarium transactions (https://aquarium.fluidtokens.com/)
+### Transaction-level activity
 
-Should a wallet also be used for DeFi loans on Liqwid Finance, the bot will also notify the user of any current Liqwid Finance loan or Indigo Protocol CDP.
+Every inbound and outbound transaction on a watched address triggers a notification.
+The bot recognises and labels several specialised transaction types:
+
+* **Generic transactions** — fallback for any movement of ADA or tokens.
+* **AdaMatic transactions** — see [adamatic.xyz](https://adamatic.xyz/).
+* **FluidTokens Aquarium transactions** — see [aquarium.fluidtokens.com](https://aquarium.fluidtokens.com/).
+* **SHEN (DJED) rewards distributions** — rewards drops from the SHEN distribution address.
+* **JPG Store NFT activity** — new listings, listing updates, sales, withdrawals, and offers
+  on [jpg.store](https://www.jpg.store/) that involve any of your watched addresses.
+
+### DeFi positions
+
+If a watched wallet holds positions on a supported lending or CDP protocol, the bot also
+surfaces them via the `/check` command and reacts to on-chain state changes.
+
+* **Liqwid Finance** — outstanding loans, with Health Factor (HF) tracked over time.
+* **Indigo Protocol** — Collateralized Debt Positions (CDPs), with Collateral Ratio tracked
+  against the per-asset Liquidation Ratio (LR) and Redemption Margin Ratio (RMR).
+* **FluidTokens Lending** — both **lender** and **borrower** positions on
+  [FluidTokens](https://app.fluidtokens.com/), with Collateral Ratio tracked against
+  three thresholds (liquidation 125%, warning 135%, healthy 150%). Messages are
+  framed differently depending on whether you're the lender (counterparty risk) or
+  the borrower (liquidation risk to your collateral).
 
 ### Notifications
 
-Ada Watch Bot monitors Liqwid and Indigo onchain activity, particularly around token price updates and interest accruals.
+Ada Watch Bot monitors the on-chain activity of each supported protocol — token price
+updates, interest accruals, oracle refreshes — and recomputes the health of every
+watched position in near-real-time.
 
-Should the relevant health metric of a loan or CDP owned by any of the user's watched addresses cross a threshold of interest, the bot will automatically send a notification to the user.
+When a health metric crosses a meaningful threshold in either direction, the bot
+automatically pushes a notification with the up-to-date numbers (debt, collateral,
+current interest rate, collateral ratio / health factor, etc.). Each protocol carries
+its own threshold legend at the bottom of the message so the reader can interpret the
+headline number at a glance.
 
 ## Commands (Discord & Telegram)
 
-The following commands are available in both the Discord and Telegram versions of Ada Watch Bot:
+The following commands are available on both platforms:
 
-| Command           | Description                                                               |
-|-------------------|---------------------------------------------------------------------------|
-| `/add address`    | Adds an Address to the watchlist                                          |
-| `/remove address` | Removes an Address from the check list                                    |
-| `/check`          | Checks the status for all the loans and CDPs owned by user's wallets      |
-| `/check address`  | Checks the status for all the loans and CDPs owned by the specific wallet |
-| `/list`           | Lists all the addresses in the watch list                                 |
-| `/help`           | Shows you an help message                                                 |
+| Command           | Description                                                                  |
+|-------------------|------------------------------------------------------------------------------|
+| `/add address`    | Add an address (payment, staking, or `$adahandle`) to your watchlist.        |
+| `/remove address` | Remove an address from your watchlist.                                       |
+| `/check`          | Check status across every watched address (Liqwid, Indigo, FluidTokens).     |
+| `/check address`  | Check the status for a single specific address.                              |
+| `/list`           | List every address currently on your watchlist.                              |
+| `/help`           | Show the welcome / help message.                                             |
 
-These commands work the same way on both platforms, ensuring a consistent experience whether you use Discord or Telegram.
+These commands behave identically on Discord and Telegram.
 
-## Commands Telegram Specific
+## Telegram-specific extras
 
-Coming soon, but user can issue the `/commands` command to retrieve a list of available commands along with their description.
+* `/commands` — list every command available with a one-line description.
+* `/check set HH:mm` / `/check unset HH:mm` / `/check list` / `/check clear` —
+  schedule recurring daily status checks at a chosen time, or list / remove the
+  schedules you have set.
+* `/tz` — view or change the timezone used for scheduled checks.
+
+## Support
+
+Issues, questions, feature requests? Email **info.easy1staking@gmail.com**.

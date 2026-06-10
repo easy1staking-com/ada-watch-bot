@@ -1,0 +1,12 @@
+{
+  "name": "check",
+  "description": "check the status of the Liqwid Finance loans or Indigo CDPs if any",
+  "options": [
+    {
+      "name": "address",
+      "description": "the address, payment address or $adahandle owning the Liqwid Finance loans or Indigo CDPs to check",
+      "type": 3,
+      "required": false
+    }
+  ]
+}
