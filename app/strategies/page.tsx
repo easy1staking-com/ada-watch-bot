@@ -8,13 +8,20 @@ export default function Strategies() {
   return (
     <main className="max-w-6xl mx-auto px-5 py-16">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white">
-          Deposit once. <span className="text-sky-400">Buy with one tap.</span>
+        <a
+          href="https://sundae.fi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-[12px] font-bold text-white sundae-grad px-4 py-1.5 rounded-full hover:opacity-90"
+        >
+          🍨 In collaboration with SundaeSwap
+        </a>
+        <h1 className="mt-5 text-4xl md:text-5xl font-extrabold text-white">
+          Deposit once. <span className="sundae-text">Buy with one tap.</span>
         </h1>
         <p className="text-white/50 mt-4 max-w-lg mx-auto">
           A strategy is your own on-chain vault: it keeps staking, only trades within your
-          limits, and you can withdraw whenever you like. Powered by SundaeSwap v3 strategy
-          orders.
+          limits, and you can withdraw whenever you like.
         </p>
       </div>
 
@@ -47,9 +54,9 @@ export default function Strategies() {
           </button>
         </div>
 
-        <div className="glass rounded-3xl p-7 ring-2 ring-sky-400/30">
+        <div className="glass rounded-3xl p-7 sundae-ring">
           <div className="flex justify-between items-start">
-            <span className="w-9 h-9 rounded-full tg-btn grid place-items-center font-bold">3</span>
+            <span className="w-9 h-9 rounded-full sundae-grad grid place-items-center font-bold">3</span>
             <span className="text-[11px] font-bold text-emerald-300 bg-emerald-400/10 px-2.5 py-1 rounded-full">
               ● ARMED
             </span>
@@ -97,6 +104,20 @@ export default function Strategies() {
       <p className="text-center text-[12px] text-white/35 mt-8">
         Wallet connect, live vault list and cancellation are landing here soon — pair with the
         bot on Telegram to be first in line.
+      </p>
+
+      <p className="text-center text-[12px] text-white/40 mt-3">
+        Strategies are powered by{" "}
+        <a
+          href="https://sundae.fi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sundae-text font-bold hover:opacity-80"
+        >
+          SundaeSwap v3
+        </a>{" "}
+        — non-custodial, bounded, owner-cancelable orders executed by the Sundae scooper
+        network.
       </p>
     </main>
   );

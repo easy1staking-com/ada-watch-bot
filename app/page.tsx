@@ -127,7 +127,15 @@ export default function Home() {
           Open a strategy →
         </Link>
         <p className="text-[12px] text-white/35 mt-6">
-          🔒 Non-custodial · orders bounded by amount, fee and time · powered by SundaeSwap v3
+          🔒 Non-custodial · orders bounded by amount, fee and time · powered by{" "}
+          <a
+            href="https://sundae.fi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sundae-text font-bold hover:opacity-80"
+          >
+            🍨 SundaeSwap v3
+          </a>
         </p>
       </section>
     </main>

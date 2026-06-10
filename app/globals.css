@@ -35,6 +35,23 @@ body {
   background: linear-gradient(90deg, #2aabee, #3b82f6);
 }
 
+/* SundaeSwap brand accents (official palette: #F070D0 -> #5C34DF) */
+.sundae-grad {
+  background: linear-gradient(90deg, #f070d0, #5c34df);
+}
+
+.sundae-text {
+  background: linear-gradient(90deg, #f070d0, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sundae-ring {
+  border: 1px solid rgba(240, 112, 208, 0.35);
+  box-shadow: 0 0 30px rgba(92, 52, 223, 0.25);
+}
+
 /* ---- pure CSS iPhone ---- */
 .iphone {
   width: 320px;

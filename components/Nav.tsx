@@ -12,8 +12,8 @@ export default function Nav() {
           <Link className="hover:text-white" href="/#features">Features</Link>
           <Link className="hover:text-white" href="/get-started">Get started</Link>
           <Link className="text-sky-400 font-semibold" href="/strategies">
-            Strategies{" "}
-            <span className="ml-1 text-[10px] align-top bg-sky-400/20 text-sky-300 px-1.5 py-0.5 rounded-full">
+            🍨 Strategies{" "}
+            <span className="ml-1 text-[10px] align-top sundae-grad text-white px-1.5 py-0.5 rounded-full">
               NEW
             </span>
           </Link>
