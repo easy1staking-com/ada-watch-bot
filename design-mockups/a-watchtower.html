@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ada Watch Bot — Watchtower</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; background: #0a0f0d; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .glow { text-shadow: 0 0 18px rgba(52,211,153,.45); }
+  .scan { background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px); }
+  .feed-item { animation: slidein .5s ease both; }
+  @keyframes slidein { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+</style>
+</head>
+<body class="text-zinc-300 scan">
+
+<!-- NAV -->
+<nav class="border-b border-emerald-900/40 bg-[#0a0f0d]/90 backdrop-blur sticky top-0 z-20">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <div class="mono font-extrabold text-lg text-emerald-400 glow">▣ ADA<span class="text-zinc-100">WATCH</span></div>
+    <div class="hidden md:flex gap-8 text-sm text-zinc-400">
+      <a class="hover:text-emerald-400" href="#">Features</a>
+      <a class="hover:text-emerald-400" href="#">Protocols</a>
+      <a class="text-emerald-400 mono" href="#strategies">[ Strategies ]</a>
+      <a class="hover:text-emerald-400" href="#">Docs</a>
+    </div>
+    <div class="flex gap-2">
+      <a class="mono text-xs px-4 py-2 border border-emerald-500/40 text-emerald-300 rounded hover:bg-emerald-500/10" href="#">Telegram →</a>
+      <a class="mono text-xs px-4 py-2 border border-zinc-700 rounded hover:bg-zinc-800" href="#">Discord →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="max-w-6xl mx-auto px-5 pt-20 pb-16 grid md:grid-cols-2 gap-12 items-center">
+  <div>
+    <p class="mono text-emerald-500 text-xs mb-4">// monitoring 24/7 — mainnet</p>
+    <h1 class="text-5xl font-extrabold text-zinc-100 leading-tight">Your watchtower on the <span class="text-emerald-400 glow">Cardano</span> chain.</h1>
+    <p class="mt-5 text-zinc-400 max-w-md">Wallet activity, DeFi loan health, NFT sales — delivered to Telegram or Discord the moment they hit the chain. Now with one-tap token purchases via SundaeSwap strategies.</p>
+    <div class="mt-8 flex gap-3">
+      <a class="mono px-5 py-3 bg-emerald-500 text-black font-bold rounded hover:bg-emerald-400" href="#">▶ start watching</a>
+      <a class="mono px-5 py-3 border border-zinc-700 rounded hover:border-emerald-600" href="#strategies">open a strategy</a>
+    </div>
+  </div>
+  <!-- live feed mock -->
+  <div class="border border-emerald-900/50 rounded-lg bg-black/40 p-4 mono text-xs space-y-2 shadow-[0_0_40px_rgba(16,185,129,.07)]">
+    <p class="text-zinc-500">— live feed —————————————</p>
+    <div class="feed-item text-emerald-300">✅ 22:53 strategy executed · 5 ₳ → 120,011,375 HOSKY</div>
+    <div class="feed-item text-zinc-300" style="animation-delay:.15s">📥 22:51 $giovanni received 250 ₳</div>
+    <div class="feed-item text-amber-300" style="animation-delay:.3s">⚠️ 22:47 FluidTokens loan CR 118% — at risk</div>
+    <div class="feed-item text-zinc-300" style="animation-delay:.45s">🖼 22:40 JPG Store: Clay Nation #4421 sold · 410 ₳</div>
+    <div class="feed-item text-zinc-500" style="animation-delay:.6s">█</div>
+  </div>
+</header>
+
+<!-- FEATURES -->
+<section class="max-w-6xl mx-auto px-5 py-14 border-t border-zinc-900">
+  <h2 class="mono text-sm text-emerald-500 mb-8">// what it watches</h2>
+  <div class="grid md:grid-cols-4 gap-4 text-sm">
+    <div class="border border-zinc-800 rounded p-5 hover:border-emerald-700 transition"><p class="text-2xl mb-2">⛓</p><p class="font-semibold text-zinc-100">Every transaction</p><p class="text-zinc-500 mt-1">In/out movements on up to 20 wallets. AdaHandle native.</p></div>
+    <div class="border border-zinc-800 rounded p-5 hover:border-emerald-700 transition"><p class="text-2xl mb-2">🏦</p><p class="font-semibold text-zinc-100">DeFi positions</p><p class="text-zinc-500 mt-1">Liqwid, Indigo, FluidTokens & Lenfi loan health + liquidation alerts.</p></div>
+    <div class="border border-zinc-800 rounded p-5 hover:border-emerald-700 transition"><p class="text-2xl mb-2">🖼</p><p class="font-semibold text-zinc-100">NFT markets</p><p class="text-zinc-500 mt-1">JPG Store listings, sales, offers on your collections.</p></div>
+    <div class="border border-emerald-800 rounded p-5 bg-emerald-950/20"><p class="text-2xl mb-2">⚡</p><p class="font-semibold text-emerald-300">NEW · Buy from chat</p><p class="text-zinc-500 mt-1">Non-custodial token purchases through SundaeSwap strategies.</p></div>
+  </div>
+</section>
+
+<!-- STRATEGIES -->
+<section id="strategies" class="max-w-6xl mx-auto px-5 py-14 border-t border-zinc-900">
+  <h2 class="mono text-sm text-emerald-500 mb-2">// strategies</h2>
+  <h3 class="text-3xl font-bold text-zinc-100 mb-8">Arm a vault. Fire from Telegram.</h3>
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- step cards -->
+    <div class="border border-zinc-800 rounded-lg p-6">
+      <p class="mono text-emerald-500 text-xs mb-3">STEP 01 · PAIR</p>
+      <p class="text-zinc-400 text-sm mb-4">Type <span class="mono text-emerald-300">/strategies</span> in Telegram, get your pairing code:</p>
+      <div class="mono text-center text-2xl tracking-[.4em] bg-black/60 border border-emerald-800 rounded py-3 text-emerald-300 glow">7K3FQ</div>
+    </div>
+    <div class="border border-zinc-800 rounded-lg p-6">
+      <p class="mono text-emerald-500 text-xs mb-3">STEP 02 · DEPOSIT</p>
+      <p class="text-zinc-400 text-sm mb-4">Connect wallet, lock ADA in a strategy you can cancel anytime.</p>
+      <button class="w-full mono text-sm py-3 bg-emerald-500 text-black font-bold rounded hover:bg-emerald-400">connect wallet</button>
+      <p class="mono text-[10px] text-zinc-600 mt-3 text-center">funds stay yours · on-chain · cancelable</p>
+    </div>
+    <!-- vault card -->
+    <div class="border border-emerald-700/60 rounded-lg p-6 bg-emerald-950/10">
+      <div class="flex justify-between items-center mb-3">
+        <p class="mono text-xs text-emerald-400">VAULT · a4e581…#0</p>
+        <span class="mono text-[10px] px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded">ARMED</span>
+      </div>
+      <p class="text-3xl font-extrabold text-zinc-100">10 ₳</p>
+      <p class="text-zinc-500 text-xs mt-1">max trade 6.72 ₳ · any market</p>
+      <div class="grid grid-cols-3 gap-2 mt-4 mono text-[11px]">
+        <button class="py-2 border border-zinc-700 rounded hover:border-emerald-500">🐶 HOSKY</button>
+        <button class="py-2 border border-zinc-700 rounded hover:border-emerald-500">🐍 SNEK</button>
+        <button class="py-2 border border-zinc-700 rounded hover:border-emerald-500">💵 USDM</button>
+      </div>
+      <button class="w-full mt-2 mono text-[11px] py-2 border border-red-900 text-red-400 rounded hover:bg-red-950/40">✕ cancel &amp; withdraw</button>
+    </div>
+  </div>
+</section>
+
+<footer class="border-t border-zinc-900 mt-10">
+  <div class="max-w-6xl mx-auto px-5 py-8 mono text-xs text-zinc-600 flex justify-between">
+    <span>▣ ADAWATCH · by easy1staking</span>
+    <span><a class="hover:text-emerald-400" href="#">privacy</a> · <a class="hover:text-emerald-400" href="#">terms</a> · <a class="hover:text-emerald-400" href="#">github</a></span>
+  </div>
+</footer>
+</body>
+</html>
