@@ -1,3 +1,5 @@
+import SignerCard from "@/components/SignerCard";
+
 export const metadata = {
   title: "Strategies — Ada Watch Bot",
   description:
@@ -29,13 +31,7 @@ export default function Strategies() {
         <div className="glass rounded-3xl p-7">
           <span className="w-9 h-9 rounded-full tg-btn grid place-items-center font-bold">1</span>
           <p className="font-bold text-white mt-4">Pair with the bot</p>
-          <p className="text-sm text-white/45 mt-1 mb-4">
-            Type <span className="text-sky-300 font-mono">/strategies</span> in Telegram and tap
-            the link — or scan the code from desktop.
-          </p>
-          <div className="font-mono text-center text-2xl tracking-[.4em] glass rounded-xl py-3 text-sky-300">
-            •••••
-          </div>
+          <SignerCard />
         </div>
 
         <div className="glass rounded-3xl p-7">
