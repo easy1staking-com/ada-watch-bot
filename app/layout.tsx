@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { WalletProvider } from "@/components/WalletContext";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={jakarta.className}>
-        <Nav />
-        {children}
-        <Footer />
+        <WalletProvider>
+          <Nav />
+          {children}
+          <Footer />
+        </WalletProvider>
       </body>
     </html>
   );

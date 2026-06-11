@@ -1,4 +1,5 @@
 import Link from "next/link";
+import WalletButton from "@/components/WalletButton";
 
 export default function Nav() {
   return (
@@ -18,14 +19,18 @@ export default function Nav() {
             </span>
           </Link>
         </div>
-        <a
-          className="tg-btn text-sm font-bold px-5 py-2.5 rounded-full hover:opacity-90"
-          href="https://t.me/AdaWatchBot"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Open in Telegram
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            className="glass w-10 h-10 grid place-items-center rounded-full hover:bg-white/10"
+            href="https://t.me/AdaWatchBot"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open in Telegram"
+          >
+            ✈️
+          </a>
+          <WalletButton />
+        </div>
       </div>
     </nav>
   );

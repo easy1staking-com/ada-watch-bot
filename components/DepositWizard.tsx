@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useWallet } from "@/components/WalletContext";
 import {
   MARKETS,
   Market,
@@ -26,6 +27,7 @@ const CADENCES = [
 const ada = (lovelace: bigint) => (Number(lovelace) / 1_000_000).toFixed(2);
 
 function WizardInner() {
+  const { wallet } = useWallet();
   const signer = useSearchParams().get("signer")?.toLowerCase() ?? "";
   const signerValid = /^[0-9a-f]{64}$/.test(signer);
 
@@ -49,11 +51,9 @@ function WizardInner() {
     setError(null);
     setBusy("Connecting wallet…");
     try {
-      const { BrowserWallet, MeshTxBuilder, deserializeAddress, scriptAddress, serializeAddressObj } =
+      const { MeshTxBuilder, deserializeAddress, scriptAddress, serializeAddressObj } =
         await import("@meshsdk/core");
-      const available = await BrowserWallet.getAvailableWallets();
-      if (available.length === 0) throw new Error("No CIP-30 wallet found — open this page in a wallet dApp browser or install Eternl/Lace.");
-      const wallet = await BrowserWallet.enable(available[0].id);
+      if (!wallet) throw new Error("Connect your wallet first (top-right button).");
 
       const changeAddress = await wallet.getChangeAddress();
       const { pubKeyHash, stakeCredentialHash } = deserializeAddress(changeAddress);
@@ -240,7 +240,7 @@ function WizardInner() {
           <Nav onBack={() => setStep(2)} />
           <button onClick={submit} disabled={!!busy}
             className="tg-btn w-full mt-3 py-3.5 rounded-2xl font-bold disabled:opacity-50">
-            {busy ?? "Connect wallet & deposit"}
+            {busy ?? (wallet ? "Sign & deposit" : "Connect wallet first (top-right)")}
           </button>
         </div>
       )}
