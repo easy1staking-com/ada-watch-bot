@@ -65,7 +65,7 @@ function WizardInner() {
         : encodeExtension({ kind: "manual", strategyId: randomStrategyId() });
 
       const datum = buildStrategyOrderDatum({
-        poolIdent: anyMarket ? undefined : market!.poolIdent,
+        poolIdent: market!.poolIdent,
         ownerKeyHash: stakeCredentialHash,
         maxProtocolFee: MAX_PROTOCOL_FEE_LOVELACE,
         destination: isSelf ? undefined : { paymentKeyHash: pubKeyHash, stakeKeyHash: stakeCredentialHash },
@@ -165,11 +165,11 @@ function WizardInner() {
             ))}
           </div>
           {flavor === "trading" && (
-            <button
-              className={`w-full mt-3 glass rounded-2xl py-3 text-sm font-bold ${anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
-              onClick={() => setAnyMarket(true)}>
-              🌐 Any market — decide at trade time
-            </button>
+            <p className="w-full mt-3 glass rounded-2xl py-3 px-4 text-xs text-white/35 text-center"
+               title="Sundae's scooper backend requires a locked market for now">
+              🌐 Any-market vaults are coming once SundaeSwap&apos;s scoopers support open
+              markets — for now every vault locks one pool.
+            </p>
           )}
           <Nav onBack={() => setStep(0)} onNext={market || anyMarket ? () => setStep(2) : undefined} />
         </div>
