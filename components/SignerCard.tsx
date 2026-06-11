@@ -34,6 +34,12 @@ function SignerCardInner() {
       >
         {signer.slice(0, 16)}…{signer.slice(-16)}
       </div>
+      <a
+        href={`/strategies/deposit?signer=${signer}`}
+        className="tg-btn block text-center w-full mt-3 py-3 rounded-xl font-bold hover:opacity-90"
+      >
+        Open a strategy →
+      </a>
     </>
   );
 }
