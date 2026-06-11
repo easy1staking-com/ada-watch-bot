@@ -44,34 +44,27 @@ export default function VaultList() {
       if (!stakeCredentialHash) throw new Error("connected address has no stake part");
       const orderAddress = serializeAddressObj(scriptAddress(ORDER_SCRIPT_HASH, stakeCredentialHash, false), 1);
 
-      const res = await fetch("https://api.koios.rest/api/v1/address_utxos?_extended=true", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ _addresses: [orderAddress] }),
-      });
-      if (!res.ok) throw new Error(`Koios ${res.status}`);
+      const res = await fetch(`/api/vaults?address=${orderAddress}`);
+      if (!res.ok) throw new Error(`vault lookup failed (${res.status})`);
       const utxos: {
         tx_hash: string;
-        tx_index: number;
-        value: string;
-        asset_list: { policy_id: string; asset_name: string; quantity: string }[] | null;
-        inline_datum: { bytes: string } | null;
+        output_index: number;
+        amount: { unit: string; quantity: string }[];
+        inline_datum: string | null;
       }[] = await res.json();
 
       const found: LiveVault[] = [];
       for (const u of utxos) {
-        const datum = u.inline_datum?.bytes;
-        if (!datum) continue;
-        const decoded = decodeStrategyOrderDatum(datum);
+        if (!u.inline_datum) continue;
+        const decoded = decodeStrategyOrderDatum(u.inline_datum);
         if (!decoded) continue;
         found.push({
           txHash: u.tx_hash,
-          outputIndex: u.tx_index,
-          lovelace: BigInt(u.value),
-          tokens: (u.asset_list ?? []).map((a) => ({
-            unit: a.policy_id + a.asset_name,
-            quantity: BigInt(a.quantity),
-          })),
+          outputIndex: u.output_index,
+          lovelace: BigInt(u.amount.find((a) => a.unit === "lovelace")?.quantity ?? "0"),
+          tokens: u.amount
+            .filter((a) => a.unit !== "lovelace")
+            .map((a) => ({ unit: a.unit, quantity: BigInt(a.quantity) })),
           decoded,
         });
       }
