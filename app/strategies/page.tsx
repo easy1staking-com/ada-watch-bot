@@ -1,4 +1,5 @@
 import SignerCard from "@/components/SignerCard";
+import VaultList from "@/components/VaultList";
 
 export const metadata = {
   title: "Strategies — Ada Watch Bot",
@@ -27,6 +28,10 @@ export default function Strategies() {
         </p>
       </div>
 
+      <div className="max-w-xl mx-auto mb-10">
+        <VaultList />
+      </div>
+
       <div className="grid md:grid-cols-3 gap-6">
         <div className="glass rounded-3xl p-7">
           <span className="w-9 h-9 rounded-full tg-btn grid place-items-center font-bold">1</span>
@@ -41,13 +46,12 @@ export default function Strategies() {
             Connect your wallet, choose an amount, sign. Funds stay yours — on-chain, staking,
             cancelable.
           </p>
-          <button
-            className="tg-btn w-full py-3 rounded-xl font-bold opacity-50 cursor-not-allowed"
-            disabled
-            title="Coming soon"
+          <a
+            href="/strategies/deposit"
+            className="tg-btn block text-center w-full py-3 rounded-xl font-bold hover:opacity-90"
           >
-            Connect wallet — coming soon
-          </button>
+            Open the deposit wizard →
+          </a>
         </div>
 
         <div className="glass rounded-3xl p-7 sundae-ring">
@@ -87,8 +91,8 @@ export default function Strategies() {
             move funds anywhere else.
           </p>
           <p>
-            The result of every trade is paid <b className="text-white/80">directly to your
-            wallet</b> — the destination is fixed in the order when you create it.
+            Every trade&apos;s result goes where <b className="text-white/80">you</b> chose at
+            deposit: straight to your wallet (one-shot) or back into the vault (trading/DCA).
           </p>
           <p>
             You can <b className="text-white/80">cancel at any time</b> with your own wallet
@@ -96,11 +100,6 @@ export default function Strategies() {
           </p>
         </div>
       </div>
-
-      <p className="text-center text-[12px] text-white/35 mt-8">
-        Wallet connect, live vault list and cancellation are landing here soon — pair with the
-        bot on Telegram to be first in line.
-      </p>
 
       <p className="text-center text-[12px] text-white/40 mt-3">
         Strategies are powered by{" "}

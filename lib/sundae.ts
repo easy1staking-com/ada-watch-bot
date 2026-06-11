@@ -172,3 +172,121 @@ export function estimateDcaCosts(depositLovelace: bigint, legLovelace: bigint): 
     totalFeesLovelace: BigInt(legs) * MAX_PROTOCOL_FEE_LOVELACE,
   };
 }
+
+
+// ------------------------------------------------- minimal PlutusData decoder
+
+function readHeader(buf: Uint8Array, pos: number): { major: number; value: bigint; next: number } {
+  const initial = buf[pos];
+  const major = initial >> 5;
+  const info = initial & 0x1f;
+  if (info < 24) return { major, value: BigInt(info), next: pos + 1 };
+  if (info === 24) return { major, value: BigInt(buf[pos + 1]), next: pos + 2 };
+  if (info === 25) return { major, value: BigInt((buf[pos + 1] << 8) | buf[pos + 2]), next: pos + 3 };
+  if (info === 26) {
+    let v = 0n;
+    for (let i = 1; i <= 4; i++) v = (v << 8n) | BigInt(buf[pos + i]);
+    return { major, value: v, next: pos + 5 };
+  }
+  if (info === 27) {
+    let v = 0n;
+    for (let i = 1; i <= 8; i++) v = (v << 8n) | BigInt(buf[pos + i]);
+    return { major, value: v, next: pos + 9 };
+  }
+  if (info === 31) return { major, value: -1n, next: pos + 1 }; // indefinite
+  throw new Error("unsupported CBOR header");
+}
+
+function decodeAt(buf: Uint8Array, pos: number): { data: Plutus; next: number } {
+  const h = readHeader(buf, pos);
+  if (h.major === 0) return { data: { int: h.value }, next: h.next };
+  if (h.major === 1) return { data: { int: -1n - h.value }, next: h.next };
+  if (h.major === 2) {
+    const end = h.next + Number(h.value);
+    return { data: { bytes: buf.slice(h.next, end) }, next: end };
+  }
+  if (h.major === 4) {
+    const items: Plutus[] = [];
+    let p = h.next;
+    if (h.value === -1n) {
+      while (buf[p] !== 0xff) { const r = decodeAt(buf, p); items.push(r.data); p = r.next; }
+      return { data: { list: items }, next: p + 1 };
+    }
+    for (let i = 0n; i < h.value; i++) { const r = decodeAt(buf, p); items.push(r.data); p = r.next; }
+    return { data: { list: items }, next: p };
+  }
+  if (h.major === 6) {
+    const tag = Number(h.value);
+    const inner = decodeAt(buf, h.next);
+    const fields = "list" in inner.data ? inner.data.list : [];
+    const alt = tag >= 1280 ? tag - 1280 + 7 : tag - 121;
+    return { data: { constr: alt, fields }, next: inner.next };
+  }
+  throw new Error("unsupported CBOR major " + h.major);
+}
+
+export const decodePlutus = (hex: string): Plutus =>
+  decodeAt(new Uint8Array(hex.match(/.{2}/g)!.map((b) => parseInt(b, 16))), 0).data;
+
+export interface DecodedVault {
+  poolIdent?: string;
+  ownerKeyHash: string;
+  maxProtocolFee: bigint;
+  isSelf: boolean;
+  signerVkey?: string;
+  extension?: DecodedExtension;
+}
+
+export interface DecodedExtension {
+  kind: StrategyKind;
+  strategyIdHex: string;
+  dcaUnit?: string;
+  cadenceSeconds?: number;
+  legLovelace?: bigint;
+  slippageBp?: number;
+}
+
+export function decodeExtension(bytes: Uint8Array): DecodedExtension | undefined {
+  if (bytes.length < 12 || bytes[0] !== 0x41 || bytes[1] !== 0x57 || bytes[2] !== 1) return undefined;
+  const kind: StrategyKind = bytes[3] === 1 ? "dca" : "manual";
+  const strategyIdHex = bytesToHex(bytes.slice(4, 12));
+  if (kind === "manual") return { kind, strategyIdHex };
+  const unitLen = bytes[12];
+  const dcaUnit = bytesToHex(bytes.slice(13, 13 + unitLen));
+  let p = 13 + unitLen;
+  const cadenceSeconds = (bytes[p] << 24 | bytes[p + 1] << 16 | bytes[p + 2] << 8 | bytes[p + 3]) >>> 0;
+  p += 4;
+  let legLovelace = 0n;
+  for (let i = 0; i < 8; i++) legLovelace = (legLovelace << 8n) | BigInt(bytes[p + i]);
+  p += 8;
+  const slippageBp = (bytes[p] << 8) | bytes[p + 1];
+  return { kind, strategyIdHex, dcaUnit, cadenceSeconds, legLovelace, slippageBp };
+}
+
+/** Decode an OrderDatum; undefined when it isn't a Strategy order. */
+export function decodeStrategyOrderDatum(hex: string): DecodedVault | undefined {
+  try {
+    const root = decodePlutus(hex);
+    if (!("constr" in root) || root.constr !== 0 || root.fields.length !== 6) return undefined;
+    const [pool, owner, fee, destination, details, extension] = root.fields;
+    if (!("constr" in details) || details.constr !== 0) return undefined; // not Strategy
+    const auth = details.fields[0];
+    const signerVkey = "constr" in auth && auth.constr === 0 && "bytes" in auth.fields[0]
+      ? bytesToHex((auth.fields[0] as { bytes: Uint8Array }).bytes)
+      : undefined;
+    return {
+      poolIdent: "constr" in pool && pool.constr === 0 && "bytes" in pool.fields[0]
+        ? bytesToHex((pool.fields[0] as { bytes: Uint8Array }).bytes)
+        : undefined,
+      ownerKeyHash: "constr" in owner && "bytes" in owner.fields[0]
+        ? bytesToHex((owner.fields[0] as { bytes: Uint8Array }).bytes)
+        : "",
+      maxProtocolFee: "int" in fee ? fee.int : 0n,
+      isSelf: "constr" in destination && destination.constr === 1,
+      signerVkey,
+      extension: "bytes" in extension ? decodeExtension(extension.bytes) : undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
