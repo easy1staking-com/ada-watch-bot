@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PhoneMock from "@/components/PhoneMock";
+import TelegramIcon from "@/components/TelegramIcon";
 
 export default function Home() {
   return (
@@ -18,12 +19,12 @@ export default function Home() {
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <a
-              className="tg-btn px-7 py-3.5 rounded-full font-bold hover:opacity-90"
+              className="tg-btn pl-4 pr-7 py-2.5 rounded-full font-bold hover:opacity-90 inline-flex items-center gap-2"
               href="https://t.me/AdaWatchBot"
               target="_blank"
               rel="noopener noreferrer"
             >
-              ✈️ Start on Telegram
+              <TelegramIcon size={28} /> Start on Telegram
             </a>
             <Link className="glass px-7 py-3.5 rounded-full font-bold hover:bg-white/10" href="/strategies">
               ⚡ Strategies

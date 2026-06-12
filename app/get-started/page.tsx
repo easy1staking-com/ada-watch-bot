@@ -1,4 +1,5 @@
 import Image from "next/image";
+import TelegramIcon from "@/components/TelegramIcon";
 
 export const metadata = {
   title: "Get started — Ada Watch Bot",
@@ -27,7 +28,7 @@ export default function GetStarted() {
       </p>
 
       <section className="glass rounded-3xl p-8 mt-10">
-        <h2 className="text-2xl font-extrabold text-white">✈️ Telegram</h2>
+        <h2 className="text-2xl font-extrabold text-white inline-flex items-center gap-2"><TelegramIcon size={28} /> Telegram</h2>
         <p className="text-white/55 mt-2">
           Open{" "}
           <a className="text-sky-300 underline" href="https://t.me/AdaWatchBot" target="_blank" rel="noopener noreferrer">
