@@ -73,6 +73,44 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
   }, [connect]);
 
+  // ---- wallet/account change autodetection (CIP-30 has no standard change event) ----
+  // Re-check the change address on window focus / tab visibility and on a slow poll
+  // while visible: if the user switched account in the wallet extension, the address
+  // differs (or the old API handle is dead) and we silently re-sync. Consumers keyed
+  // on `address` (e.g. the vault list) refresh automatically.
+  useEffect(() => {
+    if (!walletName) return;
+    let checking = false;
+
+    const recheck = async () => {
+      if (checking || document.visibilityState === "hidden") return;
+      checking = true;
+      try {
+        const { BrowserWallet } = await import("@meshsdk/core");
+        // re-enable is cheap when already authorized and survives account switches
+        const fresh = await BrowserWallet.enable(walletName);
+        const current = await fresh.getChangeAddress();
+        if (current && current !== address) {
+          setWallet(fresh);
+          setAddress(current);
+        }
+      } catch {
+        // wallet locked or permission revoked — keep last state; user can reconnect
+      } finally {
+        checking = false;
+      }
+    };
+
+    window.addEventListener("focus", recheck);
+    document.addEventListener("visibilitychange", recheck);
+    const interval = setInterval(recheck, 30_000);
+    return () => {
+      window.removeEventListener("focus", recheck);
+      document.removeEventListener("visibilitychange", recheck);
+      clearInterval(interval);
+    };
+  }, [walletName, address]);
+
   return (
     <WalletCtx.Provider value={{ installed, wallet, walletName, address, connecting, connect, disconnect }}>
       {children}
