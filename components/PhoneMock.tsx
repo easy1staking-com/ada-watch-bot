@@ -1,3 +1,5 @@
+import AdaWatchLogo from "@/components/AdaWatchLogo";
+
 export default function PhoneMock() {
   return (
     <div className="iphone justify-self-center">
@@ -11,7 +13,7 @@ export default function PhoneMock() {
         {/* telegram header */}
         <div className="tg-header flex items-center gap-3 px-4 py-2.5 border-b border-black/30">
           <span className="text-sky-400 text-sm">‹</span>
-          <span className="w-8 h-8 rounded-full tg-btn grid place-items-center text-sm">👁</span>
+          <AdaWatchLogo size={30} id="awg-phone" />
           <div className="leading-tight">
             <p className="text-[13px] font-bold text-white">Ada Watch Bot</p>
             <p className="text-[10px] text-sky-400">bot</p>

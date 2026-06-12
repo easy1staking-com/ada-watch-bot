@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TelegramIcon from "@/components/TelegramIcon";
+import AdaWatchLogo from "@/components/AdaWatchLogo";
 import DiscordIcon from "@/components/DiscordIcon";
 
 export default function Footer() {
@@ -7,7 +8,7 @@ export default function Footer() {
     <footer className="border-t border-white/10 mt-10">
       <div className="max-w-6xl mx-auto px-5 py-8 text-sm text-white/35 flex flex-col md:flex-row gap-4 justify-between items-center">
         <span className="flex items-center gap-3">
-          👁 Ada Watch ·{" "}
+          <AdaWatchLogo size={20} id="awg-foot" /> Ada Watch ·{" "}
           <a className="hover:text-white" href="https://www.easy1staking.com" target="_blank" rel="noopener noreferrer">
             easy1staking
           </a>

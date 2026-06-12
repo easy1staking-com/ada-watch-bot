@@ -41,7 +41,7 @@ export default function OgImage() {
           Non-custodial trading vaults on SundaeSwap v3 — from Telegram
         </div>
         <div style={{ color: "rgba(255,255,255,.35)", fontSize: 24, marginTop: 40 }}>
-          adawatchbot.xyz/strategies · 👁 Ada Watch × 🍨 SundaeSwap
+          adawatchbot.xyz/strategies · Ada Watch × 🍨 SundaeSwap
         </div>
       </div>
     ),

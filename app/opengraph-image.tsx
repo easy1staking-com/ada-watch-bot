@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { logoDataUri } from "@/lib/brand";
 
 export const alt = "Ada Watch Bot — your Cardano wallet, in your pocket";
 export const size = { width: 1200, height: 630 };
@@ -29,20 +30,8 @@ export default function OgImage() {
             marginBottom: 28,
           }}
         >
-          <div
-            style={{
-              width: 84,
-              height: 84,
-              borderRadius: 24,
-              background: "linear-gradient(90deg,#2AABEE,#3b82f6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 48,
-            }}
-          >
-            👁
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoDataUri(84)} width={84} height={84} alt="" />
           <div style={{ color: "#fff", fontSize: 56, fontWeight: 800 }}>Ada Watch</div>
         </div>
         <div style={{ color: "#fff", fontSize: 76, fontWeight: 800, textAlign: "center", lineHeight: 1.05 }}>

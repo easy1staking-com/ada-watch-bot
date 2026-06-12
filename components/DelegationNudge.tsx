@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import AdaWatchLogo from "@/components/AdaWatchLogo";
 
 const DISMISS_KEY = "adawatch.nudge.dismissedUntil";
 const SHOW_AFTER_MS = 15_000; // genuine dwell, not an ambush
@@ -42,7 +43,7 @@ export default function DelegationNudge() {
         ✕
       </button>
       <div className="flex items-start gap-3">
-        <span className="w-9 h-9 shrink-0 rounded-xl tg-btn grid place-items-center">👁</span>
+        <span className="shrink-0"><AdaWatchLogo size={36} id="awg-nudge" /></span>
         <div>
           <p className="text-sm text-white/80 leading-snug">
             Psst — Ada Watch is <b className="text-white">free</b>, and it stays free thanks to

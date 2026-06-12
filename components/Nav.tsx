@@ -1,12 +1,13 @@
 import Link from "next/link";
 import WalletButton from "@/components/WalletButton";
+import AdaWatchLogo from "@/components/AdaWatchLogo";
 
 export default function Nav() {
   return (
     <nav className="sticky top-0 z-30 backdrop-blur-md bg-[#0b1320]/75 border-b border-white/10">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-extrabold text-lg text-white">
-          <span className="w-8 h-8 rounded-xl tg-btn grid place-items-center">👁</span>
+          <AdaWatchLogo size={32} id="awg-nav" />
           Ada Watch
         </Link>
         <div className="hidden md:flex gap-7 text-sm font-medium text-white/55">
