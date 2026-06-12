@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Ada Watch Bot — your Cardano wallet, in your pocket";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -16,8 +15,9 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background:
-            "radial-gradient(900px 500px at 50% -10%, rgba(96,165,250,.55), rgba(42,123,228,.25) 40%, #0b1320 75%), #0b1320",
+          backgroundColor: "#0b1320",
+          backgroundImage:
+            "radial-gradient(900px 500px at 50% -10%, rgba(96,165,250,.55), rgba(42,123,228,.25) 40%, #0b1320 75%)",
           fontFamily: "sans-serif",
         }}
       >

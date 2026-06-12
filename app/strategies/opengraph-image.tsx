@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "SundaeSwap strategies on Ada Watch — deposit once, buy with one tap";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -16,8 +15,9 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background:
-            "radial-gradient(900px 500px at 50% -10%, rgba(240,112,208,.35), rgba(92,52,223,.25) 45%, #0b1320 78%), #0b1320",
+          backgroundColor: "#0b1320",
+          backgroundImage:
+            "radial-gradient(900px 500px at 50% -10%, rgba(240,112,208,.35), rgba(92,52,223,.25) 45%, #0b1320 78%)",
           fontFamily: "sans-serif",
         }}
       >

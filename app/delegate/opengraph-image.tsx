@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Keep Ada Watch free — delegate to EASY1";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -16,8 +15,9 @@ export default function OgImage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          background:
-            "radial-gradient(900px 500px at 50% -10%, rgba(52,211,153,.30), rgba(42,123,228,.22) 45%, #0b1320 78%), #0b1320",
+          backgroundColor: "#0b1320",
+          backgroundImage:
+            "radial-gradient(900px 500px at 50% -10%, rgba(52,211,153,.30), rgba(42,123,228,.22) 45%, #0b1320 78%)",
           fontFamily: "sans-serif",
         }}
       >
