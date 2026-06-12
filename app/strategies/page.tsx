@@ -83,22 +83,37 @@ export default function Strategies() {
           <p>
             Your deposit sits in a <b className="text-white/80">SundaeSwap v3 strategy order</b> —
             a UTxO at the Sundae order contract that names <b className="text-white/80">your</b>{" "}
-            key as owner and Ada Watch&apos;s key only as the trade signer.
+            key as owner and Ada Watch&apos;s key only as the trade signer. It even keeps staking
+            to your own pool while it rests.
           </p>
           <p>
-            The bot can only do one thing: submit a swap <b className="text-white/80">within the
-            order&apos;s bounds</b> (your amount, a capped protocol fee, a time window). It cannot
-            move funds anywhere else.
+            The contract caps what the bot can do: trade only on the pool{" "}
+            <b className="text-white/80">you locked</b>, protocol fee capped at what you agreed,
+            results payable <b className="text-white/80">only</b> to your vault or your wallet.
+            The one thing you trust the bot with is quoting a fair minimum price per trade — and
+            even a bad quote can&apos;t send funds anywhere else.
           </p>
           <p>
             Every trade&apos;s result goes where <b className="text-white/80">you</b> chose at
             deposit: straight to your wallet (one-shot) or back into the vault (trading/DCA).
+            Trades are executed by SundaeSwap&apos;s scooper network — the bot only signs intents.
           </p>
           <p>
             You can <b className="text-white/80">cancel at any time</b> with your own wallet
-            signature and the full balance returns to you. No permission needed from anyone.
+            signature and everything returns to you — no permission needed from the bot, from
+            Sundae, or from anyone. Even if Ada Watch vanished tomorrow, your cancel still works.
           </p>
         </div>
+        <p className="text-[12px] text-white/40 mt-6">
+          Don&apos;t trust, verify — the official SundaeSwap sources:{" "}
+          <a className="text-sky-300 underline" href="https://cdn.sundaeswap.finance/SundaeV3.pdf" target="_blank" rel="noopener noreferrer">V3 whitepaper</a>
+          {" · "}
+          <a className="text-sky-300 underline" href="https://github.com/SundaeSwap-finance/sundae-contracts" target="_blank" rel="noopener noreferrer">on-chain contracts</a>
+          {" · "}
+          <a className="text-sky-300 underline" href="https://github.com/SundaeSwap-finance/sundae-strategies" target="_blank" rel="noopener noreferrer">strategies framework</a>
+          {" · "}
+          <a className="text-sky-300 underline" href="https://github.com/SundaeSwap-finance/sundae-sdk" target="_blank" rel="noopener noreferrer">SDK</a>
+        </p>
       </div>
 
       <p className="text-center text-[12px] text-white/40 mt-3">
