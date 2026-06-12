@@ -165,10 +165,8 @@ function WizardInner() {
             ))}
           </div>
           {flavor === "trading" && (
-            <p className="w-full mt-3 glass rounded-2xl py-3 px-4 text-xs text-white/35 text-center"
-               title="Sundae's scooper backend requires a locked market for now">
-              🌐 Any-market vaults are coming once SundaeSwap&apos;s scoopers support open
-              markets — for now every vault locks one pool.
+            <p className="w-full mt-3 glass rounded-2xl py-3 px-4 text-xs text-white/35 text-center">
+              🌐 Any-market vaults are a work in progress — for now every vault locks one pool.
             </p>
           )}
           <Nav onBack={() => setStep(0)} onNext={market || anyMarket ? () => setStep(2) : undefined} />
