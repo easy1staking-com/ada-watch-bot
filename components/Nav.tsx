@@ -1,6 +1,5 @@
 import Link from "next/link";
 import WalletButton from "@/components/WalletButton";
-import TelegramIcon from "@/components/TelegramIcon";
 
 export default function Nav() {
   return (
@@ -11,28 +10,16 @@ export default function Nav() {
           Ada Watch
         </Link>
         <div className="hidden md:flex gap-7 text-sm font-medium text-white/55">
-          <Link className="hover:text-white" href="/#dapps">dApps</Link>
+          <Link className="hover:text-white" href="/get-started">Get started</Link>
+          <Link className="hover:text-white" href="/commands">Commands</Link>
           <Link className="text-sky-400 font-semibold" href="/strategies">
             🍨 Strategies{" "}
             <span className="ml-1 text-[10px] align-top sundae-grad text-white px-1.5 py-0.5 rounded-full">
               NEW
             </span>
           </Link>
-          <Link className="hover:text-white" href="/commands">Commands</Link>
-          <Link className="hover:text-white" href="/get-started">Get started</Link>
         </div>
-        <div className="flex items-center gap-2">
-          <a
-            className="rounded-full hover:opacity-85 transition-opacity grid place-items-center"
-            href="https://t.me/AdaWatchBot"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Open in Telegram"
-          >
-            <TelegramIcon size={36} />
-          </a>
-          <WalletButton />
-        </div>
+        <WalletButton />
       </div>
     </nav>
   );

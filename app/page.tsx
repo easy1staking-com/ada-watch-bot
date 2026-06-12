@@ -20,33 +20,38 @@ function Badge({ label }: { label?: string }) {
   );
 }
 
-const DAPPS: { name: string; badge?: string; extra?: string; text: string; href?: string }[] = [
+const DAPPS: { name: string; logo?: string; badge?: string; extra?: string; text: string; href?: string }[] = [
   {
     name: "Liqwid Finance",
+    logo: "/dapps/liqwid.png",
     badge: "DeFi",
     text: "Outstanding loans with the Health Factor tracked over time — alerts when HF crosses a threshold in either direction, before liquidation hurts.",
     href: "https://liqwid.finance",
   },
   {
     name: "Indigo Protocol",
+    logo: "/dapps/indigo.png",
     badge: "DeFi",
     text: "Collateralized Debt Positions with the Collateral Ratio tracked against each asset's Liquidation Ratio and Redemption Margin Ratio.",
     href: "https://indigoprotocol.io",
   },
   {
     name: "FluidTokens Lending",
+    logo: "/dapps/fluidtokens.png",
     badge: "DeFi",
     text: "Lender and borrower positions, framed differently for each side: counterparty risk for lenders, liquidation risk for borrowers. CR tracked against 125% / 135% / 150% thresholds.",
     href: "https://app.fluidtokens.com",
   },
   {
     name: "JPG Store",
+    logo: "/dapps/jpgstore.png",
     badge: "NFT",
     text: "New listings, listing updates, sales, withdrawals and offers on anything your watched wallets own.",
     href: "https://www.jpg.store",
   },
   {
     name: "SundaeSwap Strategies",
+    logo: "/dapps/sundae.png",
     badge: "Trading",
     extra: "🍨 NEW",
     text: "Deposit once, buy or sell tokens with one tap from chat — non-custodial vaults that only trade within your limits.",
@@ -54,18 +59,21 @@ const DAPPS: { name: string; badge?: string; extra?: string; text: string; href?
   },
   {
     name: "AdaMatic",
+    logo: "/dapps/adamatic.png",
     badge: "Payments",
     text: "Automated and recurring payment transactions recognised and labelled on your watchlist.",
     href: "https://adamatic.xyz",
   },
   {
     name: "FluidTokens Aquarium",
+    logo: "/dapps/fluidtokens.png",
     badge: "Payments",
     text: "Aquarium transactions detected and labelled the moment they touch a watched wallet.",
     href: "https://aquarium.fluidtokens.com",
   },
   {
     name: "SHEN rewards",
+    logo: "/dapps/djed.png",
     badge: "Rewards",
     text: "Rewards distributions from the SHEN (DJED) distribution address, called out by name.",
   },
@@ -75,6 +83,7 @@ const DAPPS: { name: string; badge?: string; extra?: string; text: string; href?
   },
   {
     name: "Ada Handle",
+    logo: "/dapps/adahandle.png",
     text: "Anywhere an address is accepted, use $yourhandle instead — resolution is built in.",
     href: "https://handle.me",
   },
@@ -160,7 +169,21 @@ export default function Home() {
           {DAPPS.map((dapp) => (
             <div key={dapp.name} className="glass rounded-2xl p-5 flex flex-col">
               <div className="flex items-center justify-between mb-2">
-                <p className="font-bold text-white">
+                <p className="font-bold text-white inline-flex items-center gap-2.5">
+                  {dapp.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={dapp.logo} alt="" className="w-8 h-8 rounded-full bg-white/10 object-contain" />
+                  ) : dapp.name === "Wallet transfers" ? (
+                    <span className="w-8 h-8 rounded-full bg-white/10 grid place-items-center">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5fb9ee" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 17V5M7 5l-4 4M7 5l4 4" /><path d="M17 7v12M17 19l4-4M17 19l-4-4" />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span className="w-8 h-8 rounded-full bg-white/10 grid place-items-center text-xs font-extrabold text-sky-300">
+                      {dapp.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                   {dapp.href ? (
                     <a className="hover:text-sky-300" href={dapp.href}
                        {...(dapp.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
@@ -175,11 +198,13 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <div className="glass rounded-2xl p-6 mt-6 text-sm text-white/55 max-w-3xl mx-auto text-center">
-          Positions are recomputed in <b className="text-white/80">near-real-time</b> on every
-          oracle refresh, interest accrual and price update. Alerts fire when a health metric
-          crosses a threshold <b className="text-white/80">in either direction</b>, and every
-          message carries its own threshold legend so the headline number reads at a glance.
+        <div className="glass rounded-2xl p-6 mt-6 text-sm text-white/55 max-w-3xl mx-auto">
+          <p className="font-bold text-white mb-2">📊 How the DeFi monitoring works</p>
+          For Liqwid, Indigo and FluidTokens positions: health is recomputed in{" "}
+          <b className="text-white/80">near-real-time</b> on every oracle refresh, interest
+          accrual and price update. Alerts fire when a health metric crosses a threshold{" "}
+          <b className="text-white/80">in either direction</b>, and every message carries its
+          own threshold legend so the headline number reads at a glance.
         </div>
       </section>
 
