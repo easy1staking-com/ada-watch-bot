@@ -44,7 +44,7 @@ export default function GetStarted() {
         </p>
       </section>
 
-      <section className="glass rounded-3xl p-8 mt-6">
+      <section id="discord" className="glass rounded-3xl p-8 mt-6">
         <h2 className="text-2xl font-extrabold text-white inline-flex items-center gap-2"><DiscordIcon size={28} /> Discord</h2>
         <ol className="mt-4 space-y-8">
           {discordSteps.map((step, i) => (
@@ -67,25 +67,10 @@ export default function GetStarted() {
         </ol>
       </section>
 
-      <section className="glass rounded-3xl p-8 mt-6">
-        <h2 className="text-2xl font-extrabold text-white">Commands</h2>
-        <div className="mt-4 space-y-2 text-sm">
-          {[
-            ["/add address", "Add an address (payment, staking, or $adahandle) to your watchlist."],
-            ["/remove address", "Remove an address from your watchlist."],
-            ["/check", "Check status across every watched address (Liqwid, Indigo, FluidTokens)."],
-            ["/check address", "Check the status of a single address."],
-            ["/list", "List every address on your watchlist."],
-            ["/help", "Show the welcome / help message."],
-          ].map(([cmd, desc]) => (
-            <p key={cmd}>
-              <code className="text-sky-300">{cmd}</code>{" "}
-              <span className="text-white/45">— {desc}</span>
-            </p>
-          ))}
-        </div>
-      </section>
-
+      <p className="text-white/45 text-sm mt-6">
+        Ready to go deeper? The full command reference lives on the{" "}
+        <a className="text-sky-300 underline" href="/commands">Commands page</a>.
+      </p>
       <p className="text-white/40 text-sm mt-8">
         Issues, questions, feature requests?{" "}
         <a className="text-sky-300 underline" href="mailto:info.easy1staking@gmail.com">
