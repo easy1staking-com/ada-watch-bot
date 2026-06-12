@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const DISMISS_KEY = "adawatch.nudge.dismissedUntil";
-const SHOW_AFTER_MS = 25_000; // genuine dwell, not an ambush
+const SHOW_AFTER_MS = 15_000; // genuine dwell, not an ambush
 const SNOOZE_DAYS = 7;
 const CLICKED_DAYS = 60; // they've seen it through — leave them alone for a long time
 
@@ -14,7 +14,7 @@ export default function DelegationNudge() {
 
   useEffect(() => {
     // never interrupt someone mid-deposit
-    if (pathname?.startsWith("/strategies/deposit")) return;
+    if (pathname?.startsWith("/strategies/deposit") || pathname?.startsWith("/delegate")) return;
     const until = Number(localStorage.getItem(DISMISS_KEY) ?? 0);
     if (Date.now() < until) return;
     const timer = setTimeout(() => setVisible(true), SHOW_AFTER_MS);
@@ -50,9 +50,7 @@ export default function DelegationNudge() {
           </p>
           <div className="flex items-center gap-3 mt-3">
             <a
-              href="https://www.easy1staking.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/delegate"
               onClick={() => snooze(CLICKED_DAYS)}
               className="tg-btn text-xs font-bold px-4 py-2 rounded-full hover:opacity-90"
             >

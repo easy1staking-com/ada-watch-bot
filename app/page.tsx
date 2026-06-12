@@ -278,9 +278,7 @@ export default function Home() {
         </p>
         <a
           className="inline-block mt-6 tg-btn px-8 py-3.5 rounded-full font-bold hover:opacity-90"
-          href="https://www.easy1staking.com"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/delegate"
         >
           Delegate to EASY1 →
         </a>
