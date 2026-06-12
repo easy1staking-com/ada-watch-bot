@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { WalletProvider } from "@/components/WalletContext";
+import DelegationNudge from "@/components/DelegationNudge";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
           <Nav />
           {children}
           <Footer />
+          <DelegationNudge />
         </WalletProvider>
       </body>
     </html>
