@@ -1,5 +1,6 @@
 import Link from "next/link";
 import WalletButton from "@/components/WalletButton";
+import TelegramIcon from "@/components/TelegramIcon";
 
 export default function Nav() {
   return (
@@ -21,13 +22,13 @@ export default function Nav() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            className="glass w-10 h-10 grid place-items-center rounded-full hover:bg-white/10"
+            className="rounded-full hover:opacity-85 transition-opacity"
             href="https://t.me/AdaWatchBot"
             target="_blank"
             rel="noopener noreferrer"
             title="Open in Telegram"
           >
-            ✈️
+            <TelegramIcon size={36} />
           </a>
           <WalletButton />
         </div>
