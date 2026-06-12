@@ -1,5 +1,6 @@
 import Image from "next/image";
 import TelegramIcon from "@/components/TelegramIcon";
+import DiscordIcon from "@/components/DiscordIcon";
 
 export const metadata = {
   title: "Get started — Ada Watch Bot",
@@ -44,7 +45,7 @@ export default function GetStarted() {
       </section>
 
       <section className="glass rounded-3xl p-8 mt-6">
-        <h2 className="text-2xl font-extrabold text-white">🎮 Discord</h2>
+        <h2 className="text-2xl font-extrabold text-white inline-flex items-center gap-2"><DiscordIcon size={28} /> Discord</h2>
         <ol className="mt-4 space-y-8">
           {discordSteps.map((step, i) => (
             <li key={step.img}>

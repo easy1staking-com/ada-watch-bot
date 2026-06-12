@@ -22,7 +22,7 @@ export default function Nav() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            className="rounded-full hover:opacity-85 transition-opacity"
+            className="rounded-full hover:opacity-85 transition-opacity grid place-items-center"
             href="https://t.me/AdaWatchBot"
             target="_blank"
             rel="noopener noreferrer"

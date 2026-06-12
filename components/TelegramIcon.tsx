@@ -1,7 +1,7 @@
 /** Official Telegram logo (brand gradient circle + paper plane). */
 export default function TelegramIcon({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 240 240" aria-label="Telegram">
+    <svg width={size} height={size} viewBox="0 0 240 240" aria-label="Telegram" style={{ display: "block" }}>
       <defs>
         <linearGradient id="tg-grad" x1="0.5" y1="0" x2="0.5" y2="1">
           <stop offset="0" stopColor="#2AABEE" />
