@@ -65,7 +65,7 @@ function WizardInner() {
         : encodeExtension({ kind: "manual", strategyId: randomStrategyId() });
 
       const datum = buildStrategyOrderDatum({
-        poolIdent: market!.poolIdent,
+        poolIdent: anyMarket ? undefined : market!.poolIdent,
         ownerKeyHash: stakeCredentialHash,
         maxProtocolFee: MAX_PROTOCOL_FEE_LOVELACE,
         destination: isSelf ? undefined : { paymentKeyHash: pubKeyHash, stakeKeyHash: stakeCredentialHash },
@@ -152,7 +152,7 @@ function WizardInner() {
           <h2 className="text-xl font-extrabold text-white mb-1">{flavor === "dca" ? "What are you accumulating?" : "Which market?"}</h2>
           <p className="text-white/45 text-sm mb-6">
             {flavor === "trading"
-              ? "Pin the vault to one pool, or leave it open to trade any whitelisted token."
+              ? "Pin the vault to one pool, or leave it open to trade any discovered token."
               : "The vault will be pinned to this token's deepest SundaeSwap V3 pool."}
           </p>
           <div className="grid grid-cols-3 gap-3">
@@ -165,9 +165,11 @@ function WizardInner() {
             ))}
           </div>
           {flavor === "trading" && (
-            <p className="w-full mt-3 glass rounded-2xl py-3 px-4 text-xs text-white/35 text-center">
-              🌐 Any-market vaults are a work in progress — for now every vault locks one pool.
-            </p>
+            <button
+              className={`w-full mt-3 glass rounded-2xl py-4 font-bold ${anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
+              onClick={() => { setAnyMarket(true); setMarket(null); }}>
+              🌐 Any market — trade across every V3 pool, decided at trade time
+            </button>
           )}
           <Nav onBack={() => setStep(0)} onNext={market || anyMarket ? () => setStep(2) : undefined} />
         </div>
