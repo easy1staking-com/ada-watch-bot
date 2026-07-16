@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useWallet } from "@/components/WalletContext";
+import StatusBanner from "@/components/StatusBanner";
+import { classifyError, FriendlyError } from "@/lib/errors";
 import {
   MARKETS,
   DecodedVault,
@@ -34,9 +36,18 @@ export default function VaultList() {
   const { client, address } = useWallet();
   const [vaults, setVaults] = useState<LiveVault[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FriendlyError | null>(null);
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [cancelled, setCancelled] = useState<string | null>(null);
+  // two-step inline confirm: first tap arms the button, second tap fires; auto-disarms
+  const [armed, setArmed] = useState<string | null>(null);
+  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const arm = useCallback((ref: string) => {
+    setArmed(ref);
+    if (disarmTimer.current) clearTimeout(disarmTimer.current);
+    disarmTimer.current = setTimeout(() => setArmed(null), 6_000);
+  }, []);
 
   const refresh = useCallback(async () => {
     if (!client || !address) return;
@@ -72,7 +83,7 @@ export default function VaultList() {
       }
       setVaults(found);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(classifyError(e));
     } finally {
       setLoading(false);
     }
@@ -84,8 +95,8 @@ export default function VaultList() {
 
   const cancelVault = useCallback(async (v: LiveVault) => {
     if (!client || !address) return;
-    if (!confirm(`Cancel this vault and withdraw everything (${ada(v.lovelace)} ₳ + tokens) to your wallet?`)) return;
     const ref = `${v.txHash}#${v.outputIndex}`;
+    setArmed(null);
     setCancelling(ref);
     setError(null);
     try {
@@ -108,13 +119,15 @@ export default function VaultList() {
           label: "cancel-vault",
         })
         .addSigner({ keyHash: stakeKeyOf(address) })
-        .build();
+        // ledger needs collateral >= 150% of the fee (~0.4 ada here); the SDK default
+        // targets 5 ada which shuts out small wallets — 1 ada is ample headroom
+        .build({ setCollateral: 1_000_000n });
 
       const txHash = txHashHex(await (await built.sign()).submit());
       setCancelled(txHash);
       setVaults((prev) => prev?.filter((x) => `${x.txHash}#${x.outputIndex}` !== ref) ?? null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(classifyError(e));
     } finally {
       setCancelling(null);
     }
@@ -137,7 +150,11 @@ export default function VaultList() {
           {loading ? "Loading…" : "↻ Refresh"}
         </button>
       </div>
-      {error && <p className="text-rose-300 text-sm break-all">{error}</p>}
+      {error && (
+        <div className="mb-3">
+          <StatusBanner message={error} onDismiss={() => setError(null)} />
+        </div>
+      )}
       {cancelled && (
         <p className="text-emerald-300 text-sm mb-3">
           ✅ Cancelled — everything is on its way back to your wallet.{" "}
@@ -181,12 +198,27 @@ export default function VaultList() {
                      href="https://t.me/AdaWatchBot" title="Trade it from the bot">
                     Trade in Telegram →
                   </a>
-                  <button
-                    onClick={() => cancelVault(v)}
-                    disabled={cancelling !== null}
-                    className="text-xs font-bold text-rose-300 glass px-3 py-1.5 rounded-full hover:bg-rose-500/10 disabled:opacity-50">
-                    {cancelling === `${v.txHash}#${v.outputIndex}` ? "Cancelling…" : "✕ Cancel & withdraw"}
-                  </button>
+                  {(() => {
+                    const ref = `${v.txHash}#${v.outputIndex}`;
+                    const isArmed = armed === ref;
+                    const isCancelling = cancelling === ref;
+                    return (
+                      <button
+                        onClick={() => (isArmed ? cancelVault(v) : arm(ref))}
+                        disabled={cancelling !== null}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-50 ${
+                          isArmed
+                            ? "text-white bg-rose-500/80 hover:bg-rose-500 animate-pulse"
+                            : "text-rose-300 glass hover:bg-rose-500/10"
+                        }`}>
+                        {isCancelling
+                          ? "Cancelling…"
+                          : isArmed
+                            ? `⚠️ Withdraw ${ada(v.lovelace)} ₳${v.tokens.length ? " + tokens" : ""}? Tap again`
+                            : "✕ Cancel & withdraw"}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

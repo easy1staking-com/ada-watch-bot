@@ -3,6 +3,8 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useWallet } from "@/components/WalletContext";
+import StatusBanner from "@/components/StatusBanner";
+import { classifyError, FriendlyError } from "@/lib/errors";
 import {
   MARKETS,
   Market,
@@ -39,7 +41,7 @@ function WizardInner() {
   const [cadence, setCadence] = useState(CADENCES[2].seconds);
   const [busy, setBusy] = useState<string | null>(null);
   const [result, setResult] = useState<{ txHash: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FriendlyError | null>(null);
 
   const deposit = BigInt(Math.round(depositAda * 1_000_000));
   const leg = BigInt(Math.round(legAda * 1_000_000));
@@ -88,7 +90,7 @@ function WizardInner() {
       const txHash = txHashHex(await submittable.submit());
       setResult({ txHash });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(classifyError(e));
     } finally {
       setBusy(null);
     }
@@ -233,7 +235,7 @@ function WizardInner() {
             🔒 Non-custodial: only your wallet can cancel; the bot can only trade within these
             bounds, and results only ever flow to your vault or your wallet.
           </p>
-          {error && <p className="text-rose-300 text-sm mt-3">{error}</p>}
+          {error && <div className="mt-3"><StatusBanner message={error} onDismiss={() => setError(null)} /></div>}
           <Nav onBack={() => setStep(2)} />
           <button onClick={submit} disabled={!!busy}
             className="tg-btn w-full mt-3 py-3.5 rounded-2xl font-bold disabled:opacity-50">

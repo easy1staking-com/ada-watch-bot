@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useWallet } from "@/components/WalletContext";
+import StatusBanner from "@/components/StatusBanner";
+import { classifyError, FriendlyError } from "@/lib/errors";
 
 export const EASY1_POOL_ID = "pool1yr0cv3dtmhcfgqa6yetvmf769ngk89e6tepecmjrmjl2jzcw2lm";
 
@@ -37,7 +39,7 @@ function fireConfetti() {
 export default function DelegateFlow() {
   const { client, walletApi, address } = useWallet();
   const [stage, setStage] = useState<Stage>("no-wallet");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FriendlyError | null>(null);
   const stakeRef = useRef<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -64,7 +66,7 @@ export default function DelegateFlow() {
         setStage("ready-register");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(classifyError(e));
       setStage("error");
     }
   }, [client, walletApi]);
@@ -112,7 +114,7 @@ export default function DelegateFlow() {
         }
       }, 10_000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(classifyError(e));
       setStage("error");
     }
   };
@@ -180,7 +182,11 @@ export default function DelegateFlow() {
 
       {stage === "error" && (
         <>
-          <p className="text-rose-300 text-sm break-all">{error}</p>
+          {error && (
+            <div className="text-left">
+              <StatusBanner message={error} />
+            </div>
+          )}
           <button onClick={check} className="glass text-sm font-bold px-5 py-2.5 rounded-full hover:bg-white/10 mt-4">
             Try again
           </button>
