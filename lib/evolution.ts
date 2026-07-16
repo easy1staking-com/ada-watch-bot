@@ -1,9 +1,10 @@
 /**
  * Evolution SDK glue for the strategies dApp. Pure TypeScript — no CML, no WASM.
  *
- * Architecture: the browser gets a keyless Koios public provider (protocol params,
- * UTxO-by-outref resolution, submission) + the user's CIP-30 wallet for signing.
- * The Blockfrost key stays server-side in the /api proxies, exactly as before.
+ * Architecture: the browser provider is Blockfrost via the same-origin /api/bf
+ * proxy (protocol params, UTxO-by-outref resolution, submission) + the user's
+ * CIP-30 wallet for signing. The Blockfrost key never reaches the browser — the
+ * proxy injects it server-side, exactly like the other /api routes.
  */
 import {
   Address,
@@ -19,20 +20,19 @@ import {
 } from "@evolution-sdk/evolution";
 import { ORDER_SCRIPT_HASH } from "@/lib/sundae";
 
-export const KOIOS_MAINNET_URL = "https://api.koios.rest/api/v1";
-
 /** The raw CIP-30 API object handed out by window.cardano.<wallet>.enable(). */
 export type WalletApi = Parameters<ReturnType<typeof Client.make>["withCip30"]>[0] & {
   getChangeAddress(): Promise<string>;
 };
 
 export type SigningClient = ReturnType<
-  ReturnType<ReturnType<typeof Client.make>["withKoios"]>["withCip30"]
+  ReturnType<ReturnType<typeof Client.make>["withBlockfrost"]>["withCip30"]
 >;
 
-/** Koios (keyless, CORS-open) for reads + submit; the user's wallet for signing. */
+/** Blockfrost through the same-origin proxy (key stays server-side); wallet signs. */
 export function makeSigningClient(api: WalletApi): SigningClient {
-  return Client.make(mainnet).withKoios({ baseUrl: KOIOS_MAINNET_URL }).withCip30(api);
+  const baseUrl = `${window.location.origin}/api/bf`;
+  return Client.make(mainnet).withBlockfrost({ baseUrl }).withCip30(api);
 }
 
 /** Stake-key credential of a bech32 base address (throws on enterprise addresses). */
