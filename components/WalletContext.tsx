@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import type { BrowserWallet } from "@meshsdk/core";
+import type { SigningClient, WalletApi } from "@/lib/evolution";
 
 interface InstalledWallet {
   id: string;
@@ -9,9 +9,26 @@ interface InstalledWallet {
   icon: string;
 }
 
+/** CIP-30 initial API as injected on window.cardano.<id>. */
+interface Cip30Initial {
+  name: string;
+  icon: string;
+  apiVersion: string;
+  enable(): Promise<WalletApi>;
+}
+
+declare global {
+  interface Window {
+    cardano?: Record<string, Cip30Initial | undefined>;
+  }
+}
+
 interface WalletState {
   installed: InstalledWallet[];
-  wallet: BrowserWallet | null;
+  /** Evolution signing client (Koios provider + CIP-30 wallet). Null when disconnected. */
+  client: SigningClient | null;
+  /** Raw CIP-30 API — for the rare direct calls (reward addresses, etc.). */
+  walletApi: WalletApi | null;
   walletName: string | null;
   address: string | null;
   connecting: boolean;
@@ -27,9 +44,17 @@ export function useWallet(): WalletState {
   return ctx;
 }
 
+function installedWallets(): InstalledWallet[] {
+  if (typeof window === "undefined" || !window.cardano) return [];
+  return Object.entries(window.cardano)
+    .filter((entry): entry is [string, Cip30Initial] => typeof entry[1]?.enable === "function")
+    .map(([id, w]) => ({ id, name: w.name ?? id, icon: w.icon ?? "" }));
+}
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [installed, setInstalled] = useState<InstalledWallet[]>([]);
-  const [wallet, setWallet] = useState<BrowserWallet | null>(null);
+  const [client, setClient] = useState<SigningClient | null>(null);
+  const [walletApi, setWalletApi] = useState<WalletApi | null>(null);
   const [walletName, setWalletName] = useState<string | null>(null);
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -37,10 +62,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const connect = useCallback(async (id: string) => {
     setConnecting(true);
     try {
-      const { BrowserWallet } = await import("@meshsdk/core");
-      const enabled = await BrowserWallet.enable(id);
-      const changeAddress = await enabled.getChangeAddress();
-      setWallet(enabled);
+      const initial = window.cardano?.[id];
+      if (!initial) throw new Error(`${id} wallet not installed`);
+      const api = await initial.enable();
+      const { makeSigningClient, bech32FromHexAddress } = await import("@/lib/evolution");
+      const changeAddress = bech32FromHexAddress(await api.getChangeAddress());
+      setWalletApi(api);
+      setClient(makeSigningClient(api));
       setWalletName(id);
       setAddress(changeAddress);
       localStorage.setItem("adawatch.wallet", id);
@@ -50,27 +78,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const disconnect = useCallback(() => {
-    setWallet(null);
+    setClient(null);
+    setWalletApi(null);
     setWalletName(null);
     setAddress(null);
     localStorage.removeItem("adawatch.wallet");
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { BrowserWallet } = await import("@meshsdk/core");
-      const wallets = await BrowserWallet.getAvailableWallets();
-      if (cancelled) return;
-      setInstalled(wallets.map((w) => ({ id: w.id, name: w.name, icon: w.icon })));
-      const remembered = localStorage.getItem("adawatch.wallet");
-      if (remembered && wallets.some((w) => w.id === remembered)) {
-        connect(remembered).catch(() => localStorage.removeItem("adawatch.wallet"));
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    // wallet extensions inject asynchronously — scan now and shortly after load
+    setInstalled(installedWallets());
+    const late = setTimeout(() => setInstalled(installedWallets()), 400);
+    const remembered = localStorage.getItem("adawatch.wallet");
+    if (remembered && window.cardano?.[remembered]) {
+      connect(remembered).catch(() => localStorage.removeItem("adawatch.wallet"));
+    }
+    return () => clearTimeout(late);
   }, [connect]);
 
   // ---- wallet/account change autodetection (CIP-30 has no standard change event) ----
@@ -86,12 +109,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       if (checking || document.visibilityState === "hidden") return;
       checking = true;
       try {
-        const { BrowserWallet } = await import("@meshsdk/core");
+        const initial = window.cardano?.[walletName];
+        if (!initial) return;
         // re-enable is cheap when already authorized and survives account switches
-        const fresh = await BrowserWallet.enable(walletName);
-        const current = await fresh.getChangeAddress();
+        const fresh = await initial.enable();
+        const { makeSigningClient, bech32FromHexAddress } = await import("@/lib/evolution");
+        const current = bech32FromHexAddress(await fresh.getChangeAddress());
         if (current && current !== address) {
-          setWallet(fresh);
+          setWalletApi(fresh);
+          setClient(makeSigningClient(fresh));
           setAddress(current);
         }
       } catch {
@@ -112,7 +138,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, [walletName, address]);
 
   return (
-    <WalletCtx.Provider value={{ installed, wallet, walletName, address, connecting, connect, disconnect }}>
+    <WalletCtx.Provider value={{ installed, client, walletApi, walletName, address, connecting, connect, disconnect }}>
       {children}
     </WalletCtx.Provider>
   );

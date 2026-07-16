@@ -9,8 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@meshsdk/core": "^1.9.0",
-    "@meshsdk/react": "^2.0.0-beta.2",
+    "@evolution-sdk/evolution": "^0.5.11",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

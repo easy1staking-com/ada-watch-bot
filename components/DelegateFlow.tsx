@@ -35,23 +35,24 @@ function fireConfetti() {
 }
 
 export default function DelegateFlow() {
-  const { wallet, address } = useWallet();
+  const { client, walletApi, address } = useWallet();
   const [stage, setStage] = useState<Stage>("no-wallet");
   const [error, setError] = useState<string | null>(null);
   const stakeRef = useRef<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const check = useCallback(async () => {
-    if (!wallet) {
+    if (!client || !walletApi) {
       setStage("no-wallet");
       return;
     }
     setStage("checking");
     try {
-      const rewardAddresses = await wallet.getRewardAddresses();
+      const { stakeBech32FromHex } = await import("@/lib/evolution");
+      const rewardAddresses = await walletApi.getRewardAddresses();
       if (!rewardAddresses?.length) throw new Error("wallet exposes no stake address");
-      stakeRef.current = rewardAddresses[0];
-      const res = await fetch(`/api/account?stake=${rewardAddresses[0]}`);
+      stakeRef.current = stakeBech32FromHex(rewardAddresses[0]);
+      const res = await fetch(`/api/account?stake=${stakeRef.current}`);
       if (!res.ok) throw new Error(`account lookup failed (${res.status})`);
       const account: { active: boolean; pool_id: string | null } = await res.json();
       if (account.pool_id === EASY1_POOL_ID) {
@@ -66,7 +67,7 @@ export default function DelegateFlow() {
       setError(e instanceof Error ? e.message : String(e));
       setStage("error");
     }
-  }, [wallet]);
+  }, [client, walletApi]);
 
   useEffect(() => {
     check();
@@ -76,22 +77,24 @@ export default function DelegateFlow() {
   }, [check]);
 
   const delegate = async () => {
-    if (!wallet || !address || !stakeRef.current) return;
+    if (!client || !address || !stakeRef.current) return;
     setError(null);
     setStage("signing");
     try {
-      const { MeshTxBuilder } = await import("@meshsdk/core");
-      const txBuilder = new MeshTxBuilder({ verbose: false });
+      const { PoolKeyHash } = await import("@evolution-sdk/evolution");
+      const { stakeKeyOf } = await import("@/lib/evolution");
+      const stakeCredential = stakeKeyOf(address);
+      const poolKeyHash = PoolKeyHash.fromBech32(EASY1_POOL_ID);
+
+      const builder = client.newTx();
       if (stage === "ready-register") {
-        txBuilder.registerStakeCertificate(stakeRef.current);
+        // Conway combined certificate: register + delegate in one go (2 ada deposit)
+        builder.registerAndDelegateTo({ stakeCredential, poolKeyHash });
+      } else {
+        builder.delegateToPool({ stakeCredential, poolKeyHash });
       }
-      const unsigned = await txBuilder
-        .delegateStakeCertificate(stakeRef.current, EASY1_POOL_ID)
-        .changeAddress(address)
-        .selectUtxosFrom(await wallet.getUtxos())
-        .complete();
-      const signed = await wallet.signTx(unsigned, true);
-      await wallet.submitTx(signed);
+      const built = await builder.build();
+      await (await built.sign()).submit();
       setStage("waiting");
       // poll until the chain reflects the new delegation
       pollRef.current = setInterval(async () => {

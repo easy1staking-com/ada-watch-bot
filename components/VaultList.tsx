@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@/components/WalletContext";
 import {
   MARKETS,
-  ORDER_SCRIPT_HASH,
   DecodedVault,
   decodeStrategyOrderDatum,
 } from "@/lib/sundae";
@@ -29,11 +28,10 @@ function tokenLabel(unit: string, quantity: bigint): string {
 }
 
 const ORDER_REF_SCRIPT_TX_HASH = "f5f1bdfad3eb4d67d2fc36f36f47fc2938cf6f001689184ab320735a28642cf2";
-const ORDER_SCRIPT_SIZE = 2469;
 const CANCEL_REDEEMER_CBOR = "d87a80";
 
 export default function VaultList() {
-  const { wallet, address } = useWallet();
+  const { client, address } = useWallet();
   const [vaults, setVaults] = useState<LiveVault[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,14 +39,12 @@ export default function VaultList() {
   const [cancelled, setCancelled] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!wallet || !address) return;
+    if (!client || !address) return;
     setLoading(true);
     setError(null);
     try {
-      const { deserializeAddress, scriptAddress, serializeAddressObj } = await import("@meshsdk/core");
-      const { stakeCredentialHash } = deserializeAddress(address);
-      if (!stakeCredentialHash) throw new Error("connected address has no stake part");
-      const orderAddress = serializeAddressObj(scriptAddress(ORDER_SCRIPT_HASH, stakeCredentialHash, false), 1);
+      const { orderAddressFor } = await import("@/lib/evolution");
+      const { orderAddress } = orderAddressFor(address);
 
       const res = await fetch(`/api/vaults?address=${orderAddress}`);
       if (!res.ok) throw new Error(`vault lookup failed (${res.status})`);
@@ -80,50 +76,41 @@ export default function VaultList() {
     } finally {
       setLoading(false);
     }
-  }, [wallet, address]);
+  }, [client, address]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   const cancelVault = useCallback(async (v: LiveVault) => {
-    if (!wallet || !address) return;
+    if (!client || !address) return;
     if (!confirm(`Cancel this vault and withdraw everything (${ada(v.lovelace)} ₳ + tokens) to your wallet?`)) return;
     const ref = `${v.txHash}#${v.outputIndex}`;
     setCancelling(ref);
     setError(null);
     try {
-      const { MeshTxBuilder, deserializeAddress, scriptAddress, serializeAddressObj } =
-        await import("@meshsdk/core");
-      const { stakeCredentialHash } = deserializeAddress(address);
-      const orderAddress = serializeAddressObj(scriptAddress(ORDER_SCRIPT_HASH, stakeCredentialHash, false), 1);
+      const { stakeKeyOf, outRef, redeemerFromCbor, txHashHex } = await import("@/lib/evolution");
 
-      const collateral = await wallet.getCollateral();
-      if (!collateral || collateral.length === 0) {
-        throw new Error("No collateral set — enable collateral in your wallet settings (Eternl: Collateral tab), then retry.");
-      }
-      const col = collateral[0];
+      // resolve the vault UTxO and the on-chain order reference script via the provider
+      const [vaultUtxo] = await client.getUtxosByOutRef([outRef(v.txHash, v.outputIndex)]);
+      const [refScriptUtxo] = await client.getUtxosByOutRef([outRef(ORDER_REF_SCRIPT_TX_HASH, 0)]);
+      if (!vaultUtxo) throw new Error("Vault UTxO not found on-chain (already cancelled or executed?)");
+      if (!refScriptUtxo) throw new Error("Sundae order reference script not found on-chain");
 
-      const vaultAssets = [
-        { unit: "lovelace", quantity: v.lovelace.toString() },
-        ...v.tokens.map((t) => ({ unit: t.unit, quantity: t.quantity.toString() })),
-      ];
+      // owner cancel: spend the order UTxO with the Cancel redeemer, signed by the
+      // stake key named in the datum; collateral is selected automatically
+      const built = await client
+        .newTx()
+        .readFrom({ referenceInputs: [refScriptUtxo] })
+        .collectFrom({
+          inputs: [vaultUtxo],
+          redeemer: redeemerFromCbor(CANCEL_REDEEMER_CBOR),
+          label: "cancel-vault",
+        })
+        .addSigner({ keyHash: stakeKeyOf(address) })
+        .build();
 
-      const txBuilder = new MeshTxBuilder({ verbose: false });
-      const unsigned = await txBuilder
-        .spendingPlutusScriptV2()
-        .txIn(v.txHash, v.outputIndex, vaultAssets, orderAddress, ORDER_SCRIPT_SIZE)
-        .spendingTxInReference(ORDER_REF_SCRIPT_TX_HASH, 0, ORDER_SCRIPT_SIZE.toString(), ORDER_SCRIPT_HASH)
-        .txInInlineDatumPresent()
-        .txInRedeemerValue(CANCEL_REDEEMER_CBOR, "CBOR", { mem: 300_000, steps: 100_000_000 })
-        .requiredSignerHash(stakeCredentialHash)
-        .txInCollateral(col.input.txHash, col.input.outputIndex, col.output.amount, col.output.address)
-        .changeAddress(address)
-        .selectUtxosFrom(await wallet.getUtxos())
-        .complete();
-
-      const signed = await wallet.signTx(unsigned, true);
-      const txHash = await wallet.submitTx(signed);
+      const txHash = txHashHex(await (await built.sign()).submit());
       setCancelled(txHash);
       setVaults((prev) => prev?.filter((x) => `${x.txHash}#${x.outputIndex}` !== ref) ?? null);
     } catch (e) {
@@ -131,9 +118,9 @@ export default function VaultList() {
     } finally {
       setCancelling(null);
     }
-  }, [wallet, address]);
+  }, [client, address]);
 
-  if (!wallet) {
+  if (!client) {
     return (
       <div className="glass rounded-3xl p-6 text-center text-white/45 text-sm">
         Connect your wallet (top-right) to see your live vaults.

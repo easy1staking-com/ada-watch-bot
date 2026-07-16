@@ -7,7 +7,6 @@ import {
   MARKETS,
   Market,
   MAX_PROTOCOL_FEE_LOVELACE,
-  ORDER_SCRIPT_HASH,
   buildStrategyOrderDatum,
   encodeExtension,
   estimateDcaCosts,
@@ -27,7 +26,7 @@ const CADENCES = [
 const ada = (lovelace: bigint) => (Number(lovelace) / 1_000_000).toFixed(2);
 
 function WizardInner() {
-  const { wallet } = useWallet();
+  const { client, address } = useWallet();
   const signer = useSearchParams().get("signer")?.toLowerCase() ?? "";
   const signerValid = /^[0-9a-f]{64}$/.test(signer);
 
@@ -51,13 +50,13 @@ function WizardInner() {
     setError(null);
     setBusy("Connecting wallet…");
     try {
-      const { MeshTxBuilder, deserializeAddress, scriptAddress, serializeAddressObj } =
-        await import("@meshsdk/core");
-      if (!wallet) throw new Error("Connect your wallet first (top-right button).");
+      if (!client || !address) throw new Error("Connect your wallet first (top-right button).");
+      const { Address, Assets } = await import("@evolution-sdk/evolution");
+      const { orderAddressFor, paymentKeyHashHexOf, inlineDatumFromCbor, txHashHex } =
+        await import("@/lib/evolution");
 
-      const changeAddress = await wallet.getChangeAddress();
-      const { pubKeyHash, stakeCredentialHash } = deserializeAddress(changeAddress);
-      if (!stakeCredentialHash) throw new Error("Wallet address has no stake part — use a base address.");
+      const { orderAddress, stakeKeyHashHex } = orderAddressFor(address);
+      const pubKeyHash = paymentKeyHashHexOf(address);
 
       const isSelf = flavor !== "oneshot";
       const extension = flavor === "dca"
@@ -66,29 +65,27 @@ function WizardInner() {
 
       const datum = buildStrategyOrderDatum({
         poolIdent: anyMarket ? undefined : market!.poolIdent,
-        ownerKeyHash: stakeCredentialHash,
+        ownerKeyHash: stakeKeyHashHex,
         maxProtocolFee: MAX_PROTOCOL_FEE_LOVELACE,
-        destination: isSelf ? undefined : { paymentKeyHash: pubKeyHash, stakeKeyHash: stakeCredentialHash },
+        destination: isSelf ? undefined : { paymentKeyHash: pubKeyHash, stakeKeyHash: stakeKeyHashHex },
         signerVkey: signer,
         extension,
       });
 
-      const orderAddress = serializeAddressObj(
-        scriptAddress(ORDER_SCRIPT_HASH, stakeCredentialHash, false), 1);
-
       setBusy("Building transaction…");
-      const txBuilder = new MeshTxBuilder({ verbose: false });
-      const unsigned = await txBuilder
-        .txOut(orderAddress, [{ unit: "lovelace", quantity: deposit.toString() }])
-        .txOutInlineDatumValue(datum, "CBOR")
-        .changeAddress(changeAddress)
-        .selectUtxosFrom(await wallet.getUtxos())
-        .complete();
+      const built = await client
+        .newTx()
+        .payToAddress({
+          address: Address.fromBech32(orderAddress),
+          assets: Assets.fromLovelace(deposit),
+          datum: inlineDatumFromCbor(datum),
+        })
+        .build();
 
       setBusy("Waiting for signature…");
-      const signed = await wallet.signTx(unsigned);
+      const submittable = await built.sign();
       setBusy("Submitting…");
-      const txHash = await wallet.submitTx(signed);
+      const txHash = txHashHex(await submittable.submit());
       setResult({ txHash });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -240,7 +237,7 @@ function WizardInner() {
           <Nav onBack={() => setStep(2)} />
           <button onClick={submit} disabled={!!busy}
             className="tg-btn w-full mt-3 py-3.5 rounded-2xl font-bold disabled:opacity-50">
-            {busy ?? (wallet ? "Sign & deposit" : "Connect wallet first (top-right)")}
+            {busy ?? (client ? "Sign & deposit" : "Connect wallet first (top-right)")}
           </button>
         </div>
       )}
