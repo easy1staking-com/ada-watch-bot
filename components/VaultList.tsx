@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useWallet } from "@/components/WalletContext";
 import StatusBanner from "@/components/StatusBanner";
 import { classifyError, FriendlyError } from "@/lib/errors";
+import { useMarkets } from "@/lib/markets";
 import {
   MARKETS,
   DecodedVault,
@@ -34,6 +35,7 @@ const CANCEL_REDEEMER_CBOR = "d87a80";
 
 export default function VaultList() {
   const { client, address } = useWallet();
+  const { markets } = useMarkets();
   const [vaults, setVaults] = useState<LiveVault[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<FriendlyError | null>(null);
@@ -167,7 +169,8 @@ export default function VaultList() {
       )}
       <div className="space-y-3">
         {vaults?.map((v) => {
-          const pinned = MARKETS.find((m) => m.poolIdent === v.decoded.poolIdent);
+          const pinned = markets.find((m) => m.poolIdent === v.decoded.poolIdent)
+            ?? MARKETS.find((m) => m.poolIdent === v.decoded.poolIdent);
           const ext = v.decoded.extension;
           return (
             <div key={`${v.txHash}#${v.outputIndex}`} className="rounded-2xl bg-white/5 border border-white/10 p-4">
@@ -176,7 +179,11 @@ export default function VaultList() {
                   {ext?.kind === "dca" ? "📆 DCA" : v.decoded.isSelf ? "⚡ Trading vault" : "🎯 One-shot"}
                 </span>
                 <span className="text-[11px] text-white/40">
-                  {pinned ? `${pinned.emoji} ${pinned.name}` : "🌐 any market"}
+                  {pinned
+                    ? `${pinned.emoji} ${pinned.name}`
+                    : v.decoded.poolIdent
+                      ? "📌 pinned pool"
+                      : "🌐 any market"}
                 </span>
               </div>
               <p className="text-2xl font-extrabold text-white mt-2">{ada(v.lovelace)} ₳</p>

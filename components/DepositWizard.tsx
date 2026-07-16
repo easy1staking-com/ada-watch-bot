@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useWallet } from "@/components/WalletContext";
 import StatusBanner from "@/components/StatusBanner";
 import { classifyError, FriendlyError } from "@/lib/errors";
+import { fetchMarkets, useMarkets } from "@/lib/markets";
 import {
-  MARKETS,
   Market,
   MAX_PROTOCOL_FEE_LOVELACE,
   buildStrategyOrderDatum,
@@ -36,6 +36,25 @@ function WizardInner() {
   const [flavor, setFlavor] = useState<Flavor | null>(null);
   const [market, setMarket] = useState<Market | null>(null);
   const [anyMarket, setAnyMarket] = useState(false);
+
+  // market picker: top pools by TVL from Sundae, plus server-side token search
+  const { markets: topMarkets } = useMarkets();
+  const [marketQuery, setMarketQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Market[] | null>(null);
+  useEffect(() => {
+    const term = marketQuery.trim();
+    if (term.length < 2) {
+      setSearchResults(null);
+      return;
+    }
+    const t = setTimeout(() => {
+      fetchMarkets(term)
+        .then(setSearchResults)
+        .catch(() => setSearchResults([]));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [marketQuery]);
+  const shownMarkets = (searchResults ?? topMarkets).slice(0, 9);
   const [depositAda, setDepositAda] = useState(25);
   const [legAda, setLegAda] = useState(10);
   const [cadence, setCadence] = useState(CADENCES[2].seconds);
@@ -149,20 +168,33 @@ function WizardInner() {
       {step === 1 && (
         <div>
           <h2 className="text-xl font-extrabold text-white mb-1">{flavor === "dca" ? "What are you accumulating?" : "Which market?"}</h2>
-          <p className="text-white/45 text-sm mb-6">
+          <p className="text-white/45 text-sm mb-4">
             {flavor === "trading"
               ? "Pin the vault to one pool, or leave it open to trade any discovered token."
               : "The vault will be pinned to this token's deepest SundaeSwap V3 pool."}
           </p>
+          <input
+            type="text"
+            value={marketQuery}
+            onChange={(e) => setMarketQuery(e.target.value)}
+            placeholder="🔍 Search any Sundae-listed token…"
+            className="w-full glass rounded-2xl px-4 py-3 text-sm text-white placeholder-white/35 outline-none focus:ring-1 focus:ring-sky-400/50 mb-3"
+          />
           <div className="grid grid-cols-3 gap-3">
-            {MARKETS.map((m) => (
-              <button key={m.name}
-                className={`glass rounded-2xl py-4 font-bold ${market?.name === m.name && !anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
+            {shownMarkets.map((m) => (
+              <button key={m.poolIdent}
+                className={`glass rounded-2xl py-4 font-bold ${market?.poolIdent === m.poolIdent && !anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
                 onClick={() => { setMarket(m); setAnyMarket(false); }}>
                 {m.emoji} {m.name}
               </button>
             ))}
           </div>
+          {searchResults !== null && searchResults.length === 0 && (
+            <p className="text-white/40 text-xs mt-3 text-center">
+              No deep-enough SundaeSwap V3 market for &quot;{marketQuery.trim()}&quot; — tokens need a pool
+              with real liquidity to trade reliably.
+            </p>
+          )}
           {flavor === "trading" && (
             <button
               className={`w-full mt-3 glass rounded-2xl py-4 font-bold ${anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
