@@ -19,6 +19,8 @@ export interface Market {
   assetNameHex: string;
   decimals: number;
   poolIdent: string;
+  /** Pool TVL in lovelace when known (discovered markets) — a scam-clone signal. */
+  tvlLovelace?: string;
 }
 
 export const MARKETS: Market[] = [

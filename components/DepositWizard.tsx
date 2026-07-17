@@ -197,6 +197,19 @@ function WizardInner() {
               with real liquidity to trade reliably.
             </p>
           )}
+          {market && !anyMarket && (
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-3 mt-3 text-xs text-white/55 space-y-0.5">
+              <p>
+                {market.emoji} <b className="text-white/80">{market.name}</b> · policy{" "}
+                <span className="font-mono">{market.policyId.slice(0, 12)}…{market.policyId.slice(-6)}</span>
+                {market.tvlLovelace && <> · ≈{Math.round(Number(market.tvlLovelace) / 1_000_000).toLocaleString()}₳ pool TVL</>}
+              </p>
+              <p className="text-white/35">
+                ⚠️ Anyone can name a token anything — same ticker, different policy is the classic scam.
+                Verify the policy id matches the project&apos;s official one (DYOR).
+              </p>
+            </div>
+          )}
           {flavor === "trading" && (
             <button
               className={`w-full mt-3 glass rounded-2xl py-4 font-bold ${anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
@@ -267,6 +280,9 @@ function WizardInner() {
             <Row k="Tradeable (est.)" v={`≈ ${ada(tradeable)} ada`} />
             {flavor === "dca" && <Row k="Schedule" v={`${legAda}₳ ${CADENCES.find((c) => c.seconds === cadence)?.label.toLowerCase()}`} />}
             <Row k="Market" v={anyMarket ? "Any (decided at trade time)" : `${market?.emoji} ${market?.name}`} />
+            {market && !anyMarket && (
+              <Row k="Token policy" v={`${market.policyId.slice(0, 12)}…${market.policyId.slice(-6)}`} />
+            )}
             <Row k="Results go" v={flavor === "oneshot" ? "to your wallet" : "back into the vault"} />
             <Row k="Bot signer" v={`${signer.slice(0, 12)}…${signer.slice(-8)}`} />
           </div>

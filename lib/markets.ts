@@ -26,6 +26,7 @@ function toMarket(m: ApiMarket): Market {
     assetNameHex: m.assetNameHex,
     decimals: m.decimals,
     poolIdent: m.poolIdent,
+    tvlLovelace: m.tvlLovelace,
   };
 }
 
