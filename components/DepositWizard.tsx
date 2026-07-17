@@ -158,9 +158,9 @@ function WizardInner() {
             <FlavorCard active={flavor === "trading"} onClick={() => setFlavor("trading")}
               title="⚡ Trading vault" badge="→ back into the vault"
               text="For trading from Telegram: buy low, sell hours later, rotate tokens — funds stay armed in the vault between trades, no re-deposits. Cancel anytime to sweep everything home." />
-            <FlavorCard active={flavor === "dca"} onClick={() => setFlavor("dca")}
-              title="📆 DCA" badge="→ back into the vault"
-              text="Recurring buys on a schedule. Tokens accumulate in the vault; cancel whenever you like to collect them. Set the budget per buy below — bigger legs mean lower fee overhead." />
+            <FlavorCard active={false} onClick={() => {}} disabled
+              title="📆 DCA" badge="coming soon"
+              text="Recurring buys on a schedule. Tokens accumulate in the vault; cancel whenever you like to collect them. The recurring engine is in the works — hold tight." />
           </div>
           <Nav onNext={flavor ? () => setStep(1) : undefined} />
         </div>
@@ -171,9 +171,7 @@ function WizardInner() {
         <div>
           <h2 className="text-xl font-extrabold text-white mb-1">{flavor === "dca" ? "What are you accumulating?" : "Which market?"}</h2>
           <p className="text-white/45 text-sm mb-4">
-            {flavor === "trading"
-              ? "Pin the vault to one pool, or leave it open to trade any discovered token."
-              : "The vault will be pinned to this token's deepest SundaeSwap V3 pool."}
+            The vault will be pinned to this token&apos;s deepest SundaeSwap V3 pool.
           </p>
           <input
             type="text"
@@ -216,10 +214,10 @@ function WizardInner() {
             </div>
           )}
           {flavor === "trading" && (
-            <button
-              className={`w-full mt-3 glass rounded-2xl py-4 font-bold ${anyMarket ? "sundae-ring" : "hover:bg-white/10"}`}
-              onClick={() => { setAnyMarket(true); setMarket(null); }}>
-              🌐 Any market — trade across every V3 pool, decided at trade time
+            <button disabled
+              className="w-full mt-3 glass rounded-2xl py-4 font-bold opacity-40 cursor-not-allowed">
+              🌐 Any market — coming soon{" "}
+              <span className="text-[10px] align-middle sundae-grad text-white px-2 py-0.5 rounded-full">soon</span>
             </button>
           )}
           <Nav onBack={() => setStep(0)} onNext={market || anyMarket ? () => setStep(2) : undefined} />
@@ -307,12 +305,14 @@ function WizardInner() {
   );
 }
 
-function FlavorCard({ active, onClick, title, badge, text }: {
-  active: boolean; onClick: () => void; title: string; badge: string; text: string;
+function FlavorCard({ active, onClick, title, badge, text, disabled }: {
+  active: boolean; onClick: () => void; title: string; badge: string; text: string; disabled?: boolean;
 }) {
   return (
-    <button onClick={onClick}
-      className={`w-full text-left glass rounded-2xl p-4 ${active ? "sundae-ring" : "hover:bg-white/10"}`}>
+    <button onClick={onClick} disabled={disabled}
+      className={`w-full text-left glass rounded-2xl p-4 ${
+        disabled ? "opacity-40 cursor-not-allowed" : active ? "sundae-ring" : "hover:bg-white/10"
+      }`}>
       <p className="font-bold text-white">{title}{" "}
         <span className="text-[10px] align-middle sundae-grad text-white px-2 py-0.5 rounded-full">{badge}</span>
       </p>
