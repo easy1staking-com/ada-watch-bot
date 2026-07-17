@@ -66,6 +66,8 @@ function WizardInner() {
   const leg = BigInt(Math.round(legAda * 1_000_000));
   const dcaCosts = useMemo(() => estimateDcaCosts(deposit, leg), [deposit, leg]);
   const tradingTrips = Number((deposit - 2_000_000n) / (2n * MAX_PROTOCOL_FEE_LOVELACE));
+  // what one swap can actually offer: deposit minus the batcher fee cap and the scooper's minUTxO floor
+  const tradeable = deposit - MAX_PROTOCOL_FEE_LOVELACE - 2_000_000n;
 
   async function submit() {
     setError(null);
@@ -233,19 +235,23 @@ function WizardInner() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-sm space-y-1">
             {flavor === "dca" ? (
               <>
-                <p className="text-white/70">≈ <b className="text-white">{dcaCosts.legs} buys</b> before the vault runs out</p>
+                <p className="text-white/70">≈ <b className="text-white">{dcaCosts.legs} buys</b> before the vault runs out (estimated)</p>
                 <p className="text-white/70">Batcher fee ≤ 1.28₳/buy = <b className={dcaCosts.feePctPerLeg > 10 ? "text-rose-300" : "text-emerald-300"}>{dcaCosts.feePctPerLeg.toFixed(1)}% overhead</b> per buy</p>
                 {dcaCosts.feePctPerLeg > 10 && <p className="text-rose-300">😬 That overhead is steep — consider bigger per-buy budgets.</p>}
-                <p className="text-white/40">2₳ stays as the scooper floor; everything returns when you cancel.</p>
               </>
             ) : flavor === "trading" ? (
               <>
-                <p className="text-white/70">Tradeable now: <b className="text-white">{ada(deposit - MAX_PROTOCOL_FEE_LOVELACE - 2_000_000n)}₳</b></p>
+                <p className="text-white/70">Estimated tradeable now: <b className="text-white">≈ {ada(tradeable)}₳</b></p>
                 <p className="text-white/70">Fee headroom: ≈ <b className="text-white">{tradingTrips}</b> round-trips (≤1.28₳ per trade)</p>
               </>
             ) : (
-              <p className="text-white/70">Buys <b className="text-white">{ada(deposit - MAX_PROTOCOL_FEE_LOVELACE - 2_000_000n)}₳</b> of {market?.name}; tokens + change return to your wallet.</p>
+              <p className="text-white/70">Buys <b className="text-white">≈ {ada(tradeable)}₳</b> of {market?.name} (estimated); tokens + change return to your wallet.</p>
             )}
+            <p className="text-white/40 pt-1">
+              = {depositAda} deposited − 1.28₳ batcher reserve − 2₳ scooper floor. Reserves aren&apos;t
+              lost — everything returns when you cancel.{" "}
+              <a href="/strategies/faq" target="_blank" className="underline text-sky-300/80">Why?</a>
+            </p>
           </div>
           <Nav onBack={() => setStep(1)} onNext={depositAda >= 5 ? () => setStep(3) : undefined} />
         </div>
@@ -258,6 +264,7 @@ function WizardInner() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-4 text-sm space-y-2">
             <Row k="Strategy" v={flavor === "dca" ? `📆 DCA ${market?.name}` : flavor === "trading" ? "⚡ Trading vault" : `🎯 One-shot ${market?.name}`} />
             <Row k="Deposit" v={`${depositAda} ada`} />
+            <Row k="Tradeable (est.)" v={`≈ ${ada(tradeable)} ada`} />
             {flavor === "dca" && <Row k="Schedule" v={`${legAda}₳ ${CADENCES.find((c) => c.seconds === cadence)?.label.toLowerCase()}`} />}
             <Row k="Market" v={anyMarket ? "Any (decided at trade time)" : `${market?.emoji} ${market?.name}`} />
             <Row k="Results go" v={flavor === "oneshot" ? "to your wallet" : "back into the vault"} />
