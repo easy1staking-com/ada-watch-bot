@@ -193,8 +193,8 @@ function WizardInner() {
           </div>
           {searchResults !== null && searchResults.length === 0 && (
             <p className="text-white/40 text-xs mt-3 text-center">
-              No deep-enough SundaeSwap V3 market for &quot;{marketQuery.trim()}&quot; — tokens need a pool
-              with real liquidity to trade reliably.
+              No SundaeSwap V3 ada-pair found for &quot;{marketQuery.trim()}&quot; — the token may only
+              have liquidity on V1 or in non-ada pairs, which strategies can&apos;t trade.
             </p>
           )}
           {market && !anyMarket && (
@@ -204,6 +204,11 @@ function WizardInner() {
                 <span className="font-mono">{market.policyId.slice(0, 12)}…{market.policyId.slice(-6)}</span>
                 {market.tvlLovelace && <> · ≈{Math.round(Number(market.tvlLovelace) / 1_000_000).toLocaleString()}₳ pool TVL</>}
               </p>
+              {market.tvlLovelace && Number(market.tvlLovelace) < 10_000_000_000 && (
+                <p className="text-amber-300/80">
+                  💧 Thin pool — larger trades will move the price significantly. Keep trade sizes modest.
+                </p>
+              )}
               <p className="text-white/35">
                 ⚠️ Anyone can name a token anything — same ticker, different policy is the classic scam.
                 Verify the policy id matches the project&apos;s official one (DYOR).

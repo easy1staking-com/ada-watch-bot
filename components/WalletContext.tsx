@@ -86,14 +86,27 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // wallet extensions inject asynchronously — scan now and shortly after load
-    setInstalled(installedWallets());
-    const late = setTimeout(() => setInstalled(installedWallets()), 400);
+    // Wallet extensions inject into window.cardano asynchronously — often AFTER first
+    // render. Poll for a few seconds: keep the picker list fresh and auto-reconnect the
+    // remembered wallet as soon as its extension shows up (otherwise a reload looks
+    // like a lost connection).
     const remembered = localStorage.getItem("adawatch.wallet");
-    if (remembered && window.cardano?.[remembered]) {
-      connect(remembered).catch(() => localStorage.removeItem("adawatch.wallet"));
-    }
-    return () => clearTimeout(late);
+    let reconnected = false;
+    let attempts = 0;
+    const tick = () => {
+      setInstalled(installedWallets());
+      if (remembered && !reconnected && window.cardano?.[remembered]) {
+        reconnected = true;
+        connect(remembered).catch(() => localStorage.removeItem("adawatch.wallet"));
+      }
+    };
+    tick();
+    const interval = setInterval(() => {
+      attempts += 1;
+      tick();
+      if (reconnected || attempts >= 16) clearInterval(interval); // ~4s of patience
+    }, 250);
+    return () => clearInterval(interval);
   }, [connect]);
 
   // ---- wallet/account change autodetection (CIP-30 has no standard change event) ----

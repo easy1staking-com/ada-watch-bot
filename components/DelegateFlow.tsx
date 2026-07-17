@@ -71,7 +71,17 @@ export default function DelegateFlow() {
     }
   }, [client, walletApi]);
 
+  // Re-check when the wallet (re)connects — but never while a delegation is in
+  // flight: the signing popup steals focus, the wallet context refreshes its
+  // handle on refocus, and re-running check() here would reset the stage
+  // machine mid-transaction (looks like a lost connection).
+  const stageRef = useRef(stage);
   useEffect(() => {
+    stageRef.current = stage;
+  }, [stage]);
+
+  useEffect(() => {
+    if (["signing", "waiting", "done"].includes(stageRef.current)) return;
     check();
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);

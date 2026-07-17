@@ -12,8 +12,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 const SUNDAE_GRAPHQL = "https://api.sundae.fi/graphql";
 
-/** ~10k ada TVL floor — thin pools get skipped by scoopers and give awful prices. */
-const MIN_TVL_LOVELACE = 10_000_000_000n;
+/**
+ * Dust floor only (~250 ada TVL). Real V3 ADA pools can be thin — HOSKY's is ~500 ada
+ * and scoopers fill it fine (proven live) — so we surface thin pools and WARN instead
+ * of hiding them; the picker shows TVL + policy id so the user can judge.
+ */
+const MIN_TVL_LOVELACE = 250_000_000n;
 
 const MAX_MARKETS = 30;
 
