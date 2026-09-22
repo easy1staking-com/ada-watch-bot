@@ -7,3 +7,9 @@ next-env.d.ts
 .vercel
 *.tsbuildinfo
 lib/sundae.compiled.mjs
+
+# Secrets — env files in any spelling (incl. editor copies like ".env copy"), signing keys
+.env
+.env*
+!.env.example
+*.skey
