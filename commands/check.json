@@ -1,6 +1,15 @@
 {
   "name": "check",
   "description": "check the status of the Liqwid Finance loans or Indigo CDPs if any",
+  "default_member_permissions": "8",
+  "contexts": [
+    0,
+    1
+  ],
+  "integration_types": [
+    0,
+    1
+  ],
   "options": [
     {
       "name": "address",

@@ -16,6 +16,7 @@ const SHARED: [string, string][] = [
 const TELEGRAM: [string, string][] = [
   ["/strategies", "🍨 Your SundaeSwap trading vaults: pairing key, deposit link, one-tap buys and sells."],
   ["/commands", "List every command with a one-line description."],
+  ["/add address alias", "Give a watched address a private alias, visible only to you (2-24 characters: letters, digits, _ or -). Pass - as the alias to clear it."],
   ["/check set HH:mm", "Schedule a recurring daily status check at a chosen time."],
   ["/check unset HH:mm", "Remove a scheduled check."],
   ["/check list", "List your scheduled checks."],
