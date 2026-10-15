@@ -79,7 +79,7 @@ const DAPPS: { name: string; logo?: string; badge?: string; extra?: string; text
   },
   {
     name: "Wallet transfers",
-    text: "Every inbound and outbound transaction on up to 20 watched wallets — ADA, tokens, with counterparty shown.",
+    text: "Every inbound and outbound transaction on up to 30 watched wallets — ADA, tokens, with counterparty shown.",
   },
   {
     name: "Ada Handle",
@@ -162,7 +162,7 @@ export default function Home() {
           Every dApp you use, <span className="text-sky-400">watched</span>
         </h2>
         <p className="text-white/45 text-sm text-center mt-2 mb-10 max-w-xl mx-auto">
-          Add up to 20 wallets to your watchlist. Whenever an event touches one of them — on
+          Add up to 30 wallets to your watchlist. Whenever an event touches one of them — on
           any of these protocols — the bot tells you, with the numbers that matter.
         </p>
         <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
