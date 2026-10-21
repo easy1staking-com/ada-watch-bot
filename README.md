@@ -39,7 +39,7 @@ To start interacting with Ada Watch Bot on Discord, follow these steps:
 
 ## How does it work?
 
-Ada Watch lets a user add up to **20 Cardano wallet addresses** to their watchlist.
+Ada Watch lets a user add up to **30 Cardano wallet addresses** to their watchlist.
 Whenever an event of interest involves one of those addresses, the bot sends a
 notification.
 
